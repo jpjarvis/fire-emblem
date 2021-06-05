@@ -23,14 +23,12 @@ namespace FireEmblem.Test
             Debug.Log($"AS: {unit.GetAttackSpeed()}");
         }
         
-        
-        
         private void Start()
         {
             var playerUnit = CreatePlayerUnit();
             var enemyUnit = CreateBandit();
 
-            var combat = Combat.CreateCombat(playerUnit, enemyUnit, 2);
+            var combat = Combat.Create(playerUnit, enemyUnit, 2);
             foreach (var attack in combat.CombatForecast)
             {
                 Debug.Log(
@@ -143,12 +141,12 @@ namespace FireEmblem.Test
 
             var weaponData = new WeaponData
             {
-                Name = "Iron Bow",
+                Name = "Fire",
                 Might = 5,
                 Crit = 0,
                 Hit = 80,
                 Weight = 5,
-                IsMagic = false,
+                IsMagic = true,
                 MaxRange = 3,
                 MinRange = 2
             };

@@ -6,7 +6,7 @@ namespace FireEmblem.Common
     {
         private static Rng _instance;
         
-        public static Rng Instance => _instance ?? (_instance = new Rng());
+        public static Rng Instance => _instance ??= new Rng();
 
         private readonly Random _random;
 
