@@ -57,7 +57,7 @@ namespace FireEmblem.Model.Combat
                 
                 if (attackResult.IsCrit)
                 {
-                    attackResult.Damage *= 3;
+                    attackResult.Damage *= CombatConstants.CritDamageMultiplier;
                 }
 
                 if (attackResult.IsHit)
@@ -121,7 +121,7 @@ namespace FireEmblem.Model.Combat
             // TODO Apply attack order skills
         }
         
-        public static Combat CreateCombat(Unit attacker, Unit defender, int distance)
+        public static Combat Create(Unit attacker, Unit defender, int distance)
         {
             var combat = new Combat {_attacker = attacker, _defender = defender, _distance = distance};
             combat.GenerateCombatForecast();

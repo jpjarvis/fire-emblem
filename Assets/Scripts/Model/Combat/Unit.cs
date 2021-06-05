@@ -67,7 +67,7 @@ namespace FireEmblem.Model.Combat
 
         public bool CanFollowUp(Unit other)
         {
-            return GetAttackSpeed() >= other.GetAttackSpeed() + 4;
+            return GetAttackSpeed() >= other.GetAttackSpeed() + CombatConstants.DoubleAttackSpeedDifference;
         }
 
         public void TakeDamage(int damage)
