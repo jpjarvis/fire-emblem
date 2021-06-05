@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using FireEmblem.Common;
 
-namespace FireEmblem
+namespace FireEmblem.Model.Combat
 {
     public class Combat
     {
@@ -19,7 +20,7 @@ namespace FireEmblem
 
         private int _distance;
 
-        private List<CombatForecastAttack> _combatForecast;
+        private readonly List<CombatForecastAttack> _combatForecast;
         
         public Combat()
         {
@@ -57,7 +58,7 @@ namespace FireEmblem
 
                 if (attackResult.IsHit)
                 {
-                    attackResult.Target.TakeDamage(attackResult.Damage);
+                    // attackResult.Target.TakeDamage(attackResult.Damage);
                 }
             }
             
@@ -66,15 +67,15 @@ namespace FireEmblem
 
         private static CombatForecastAttack GenerateCombatForecastAttack(Unit attacker, Unit target)
         {
-            var defendingStat = attacker.Weapon.WeaponData.AttackStat == Stat.Strength ? target.GetProtection() : target.GetResilience();
+            var defendingStat = attacker.Weapon.Data.IsMagic ? target.GetProtection() : target.GetResilience();
             
             return new CombatForecastAttack
             {
                 Attacker = attacker,
                 Target = target,
                 Damage = Math.Max(attacker.GetAttack() - defendingStat, 0),
-                HitChance = Math.Clamp(attacker.GetHit() - target.GetAvoid(), 0, 100),
-                CritChance = Math.Clamp(attacker.GetCrit() - target.GetCritAvoid(), 0, 100),
+                HitChance = Utils.Clamp(attacker.GetHit() - target.GetAvoid(), 0, 100),
+                CritChance = Utils.Clamp(attacker.GetCrit() - target.GetCritAvoid(), 0, 100),
             };
         }
         
@@ -84,8 +85,8 @@ namespace FireEmblem
             
             // TODO Apply pre-combat skills
             
-            var attackerCanAttack = _attacker.Weapon.WeaponData.IsInRange(_distance);
-            var defenderCanAttack = _defender.Weapon.WeaponData.IsInRange(_distance);
+            var attackerCanAttack = _attacker.Weapon.Data.IsInRange(_distance);
+            var defenderCanAttack = _defender.Weapon.Data.IsInRange(_distance);
 
             if (attackerCanAttack)
             {

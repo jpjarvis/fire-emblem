@@ -1,4 +1,4 @@
-namespace FireEmblem
+namespace FireEmblem.Model.Combat
 {
     public class Durability
     {
