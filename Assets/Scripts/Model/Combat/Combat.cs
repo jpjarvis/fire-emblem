@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FireEmblem.Common;
 
 namespace FireEmblem.Model.Combat
 {
     public class Combat
     {
-        private class CombatForecastAttack
+        public class CombatForecastAttack
         {
             public Unit Attacker { get; set; }
             public Unit Target { get; set; }
@@ -20,31 +21,34 @@ namespace FireEmblem.Model.Combat
 
         private int _distance;
 
-        private readonly List<CombatForecastAttack> _combatForecast;
+        public List<CombatForecastAttack> CombatForecast { get; }
         
         public Combat()
         {
-            _combatForecast = new List<CombatForecastAttack>();
+            CombatForecast = new List<CombatForecastAttack>();
         }
 
         public class AttackResult
         {
+            public Unit Attacker { get; set; }
             public Unit Target { get; set; }
             public int Damage { get; set; }
             public bool IsHit { get; set; }
             public bool IsCrit { get; set; }
+            public bool IsFatal { get; set; }
         }
 
         public IEnumerable<AttackResult> Resolve()
         {
             var attacks = new List<AttackResult>();
-            var attackQueue = new Queue<CombatForecastAttack>(_combatForecast);
+            var attackQueue = new Queue<CombatForecastAttack>(CombatForecast);
 
-            while (attackQueue.Count > 0)
+            while (attackQueue.Count > 0 && !attacks.Any(x => x.IsFatal))
             {
                 var attack = attackQueue.Dequeue();
                 var attackResult = new AttackResult
                 {
+                    Attacker = attack.Attacker,
                     Target = attack.Target,
                     IsHit = Rng.Instance.PerformCheck(attack.HitChance),
                     IsCrit = Rng.Instance.PerformCheck(attack.CritChance),
@@ -58,8 +62,14 @@ namespace FireEmblem.Model.Combat
 
                 if (attackResult.IsHit)
                 {
-                    // attackResult.Target.TakeDamage(attackResult.Damage);
+                    attackResult.Target.TakeDamage(attackResult.Damage);
+                    if (attackResult.Target.IsDead())
+                    {
+                        attackResult.IsFatal = true;
+                    }
                 }
+                
+                attacks.Add(attackResult);
             }
             
             return attacks;
@@ -81,7 +91,7 @@ namespace FireEmblem.Model.Combat
         
         private void GenerateCombatForecast()
         {
-            _combatForecast.Clear();
+            CombatForecast.Clear();
             
             // TODO Apply pre-combat skills
             
@@ -90,22 +100,22 @@ namespace FireEmblem.Model.Combat
 
             if (attackerCanAttack)
             {
-                _combatForecast.Add(GenerateCombatForecastAttack(_attacker, _defender));
+                CombatForecast.Add(GenerateCombatForecastAttack(_attacker, _defender));
             }
             
             if (defenderCanAttack)
             {
-                _combatForecast.Add(GenerateCombatForecastAttack(_defender, _attacker));
+                CombatForecast.Add(GenerateCombatForecastAttack(_defender, _attacker));
             }
 
             if (attackerCanAttack && _attacker.CanFollowUp(_defender))
             {
-                _combatForecast.Add(GenerateCombatForecastAttack(_attacker, _defender));
+                CombatForecast.Add(GenerateCombatForecastAttack(_attacker, _defender));
             }
 
             if (defenderCanAttack && _defender.CanFollowUp(_attacker))
             {
-                _combatForecast.Add(GenerateCombatForecastAttack(_defender, _attacker));
+                CombatForecast.Add(GenerateCombatForecastAttack(_defender, _attacker));
             }
             
             // TODO Apply attack order skills

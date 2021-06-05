@@ -5,7 +5,9 @@ namespace FireEmblem.Model.Combat
 {
     public abstract class Unit
     {
-        public int CurrentHp { get; private set; }
+        private int _damageTaken;
+        public int MaxHp => Stats.Hp;
+        public int CurrentHp => Math.Max(MaxHp - _damageTaken, 0);
 
         protected Unit()
         {
@@ -70,13 +72,12 @@ namespace FireEmblem.Model.Combat
 
         public void TakeDamage(int damage)
         {
-            CurrentHp -= damage;
-            CurrentHp = Math.Max(CurrentHp, 0);
+            _damageTaken += damage;
         }
 
         public bool IsDead()
         {
-            return CurrentHp <= 0;
+            return CurrentHp == 0;
         }
     }
 }
