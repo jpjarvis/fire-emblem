@@ -1,5 +1,8 @@
-﻿namespace FireEmblem.Model.Data
+﻿using System;
+
+namespace FireEmblem.Model.Data
 {
+    [Serializable]
     public class WeaponData
     {
         public string Name { get; set; }

@@ -1,0 +1,41 @@
+﻿{
+  "id": "Test",
+  
+  "size": {
+    "x": 20,
+    "y": 20
+  },
+  
+  "playerUnitPositions": [
+    {
+      "x": 0,
+      "y": 0
+    }
+  ],
+  
+  "enemyUnits": [
+    {
+      "unitDataId": "bandit",
+      "position": {
+        "x": 10,
+        "y": 10
+      }
+    }
+  ],
+  
+  "unitData": {
+    "bandit": {
+      "name": "Bandit",
+      "stats": {
+        "hp": 18,
+        "strength": 8,
+        "magic": 1,
+        "dexterity": 7,
+        "luck": 2,
+        "speed": 9,
+        "defence": 5,
+        "resistance": 2
+      }
+    }
+  }
+}

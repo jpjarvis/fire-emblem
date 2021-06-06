@@ -1,5 +1,6 @@
-﻿using FireEmblem.Model.Combat;
-using FireEmblem.Model.Data;
+﻿using System.Linq;
+using FireEmblem.Model.Combat;
+using FireEmblem.Model.Data.Serialization;
 using UnityEngine;
 
 namespace FireEmblem.Test
@@ -25,10 +26,12 @@ namespace FireEmblem.Test
         
         private void Start()
         {
-            var playerUnit = CreatePlayerUnit();
-            var enemyUnit = CreateBandit();
+            var map = MapLoader.LoadMap("Test");
+            var playerUnits = PlayerUnitLoader.LoadPlayerUnits();
+            var playerUnit = Unit.Create(playerUnits.First());
+            var enemyUnit = Unit.Create(map.UnitData[map.EnemyUnits.First().UnitDataId]);
 
-            var combat = Combat.Create(playerUnit, enemyUnit, 2);
+            var combat = Combat.Create(playerUnit, enemyUnit, 1);
             foreach (var attack in combat.CombatForecast)
             {
                 Debug.Log(
@@ -62,78 +65,6 @@ namespace FireEmblem.Test
                     Debug.Log($"{attack.Target.Name} was slain by {attack.Attacker.Name}!");
                 }
             }
-        }
-
-        private static Unit CreatePlayerUnit()
-        {
-            var unitData = new UnitData
-            {
-                Name = "Edelgard",
-                Stats = new StatBlock
-                {
-                    Hp = 28,
-                    Strength = 13,
-                    Magic = 5,
-                    Dexterity = 7,
-                    Speed = 9,
-                    Defence = 7,
-                    Resistance = 5
-                }
-            };
-
-            var unit = Unit.Create(unitData);
-
-            var weaponData = new WeaponData
-            {
-                Name = "Aymr",
-                Might = 18,
-                Crit = 20,
-                Hit = 60,
-                Weight = 10,
-                IsMagic = false,
-                MaxRange = 1,
-                MinRange = 1
-            };
-
-            var weapon = Weapon.Create(weaponData);
-            unit.Weapon = weapon;
-            return unit;
-        }
-        
-        private static Unit CreateBandit()
-        {
-            var unitData = new UnitData()
-            {
-                Name = "Bandit",
-                Stats = new StatBlock
-                {
-                    Hp = 54,
-                    Strength = 7,
-                    Magic = 1,
-                    Dexterity = 5,
-                    Speed = 20,
-                    Defence = 5,
-                    Resistance = 2
-                }
-            };
-
-            var unit = Unit.Create(unitData);
-
-            var weaponData = new WeaponData
-            {
-                Name = "Fire",
-                Might = 5,
-                Crit = 0,
-                Hit = 80,
-                Weight = 5,
-                IsMagic = true,
-                MaxRange = 3,
-                MinRange = 2
-            };
-
-            var weapon = Weapon.Create(weaponData);
-            unit.Weapon = weapon;
-            return unit;
         }
     }
 }

@@ -1,5 +1,8 @@
+using System;
+
 namespace FireEmblem.Model.Data
 {
+    [Serializable]
     public class StatBlock : IStatBlock
     {
         public int Hp { get; set; }
