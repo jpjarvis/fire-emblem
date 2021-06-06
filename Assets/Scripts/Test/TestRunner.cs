@@ -64,12 +64,12 @@ namespace FireEmblem.Test
             }
         }
 
-        private static PlayerUnit CreatePlayerUnit()
+        private static Unit CreatePlayerUnit()
         {
-            var unitData = new PlayerUnitData
+            var unitData = new UnitData
             {
                 Name = "Edelgard",
-                BaseStats = new StatBlock
+                Stats = new StatBlock
                 {
                     Hp = 28,
                     Strength = 13,
@@ -78,20 +78,10 @@ namespace FireEmblem.Test
                     Speed = 9,
                     Defence = 7,
                     Resistance = 5
-                },
-                Growths = new StatBlock
-                {
-                    Hp = 50,
-                    Strength = 50,
-                    Magic = 30,
-                    Dexterity = 45,
-                    Speed = 50,
-                    Defence = 40,
-                    Resistance = 30
                 }
             };
 
-            var unit = new PlayerUnit(unitData);
+            var unit = Unit.Create(unitData);
 
             var weaponData = new WeaponData
             {
@@ -112,10 +102,10 @@ namespace FireEmblem.Test
         
         private static Unit CreateBandit()
         {
-            var unitData = new PlayerUnitData
+            var unitData = new UnitData()
             {
                 Name = "Bandit",
-                BaseStats = new StatBlock
+                Stats = new StatBlock
                 {
                     Hp = 54,
                     Strength = 7,
@@ -124,20 +114,10 @@ namespace FireEmblem.Test
                     Speed = 20,
                     Defence = 5,
                     Resistance = 2
-                },
-                Growths = new StatBlock
-                {
-                    Hp = 0,
-                    Strength = 50,
-                    Magic = 30,
-                    Dexterity = 45,
-                    Speed = 50,
-                    Defence = 40,
-                    Resistance = 30
                 }
             };
 
-            var unit = new PlayerUnit(unitData);
+            var unit = Unit.Create(unitData);
 
             var weaponData = new WeaponData
             {

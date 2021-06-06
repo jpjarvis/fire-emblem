@@ -3,19 +3,27 @@ using FireEmblem.Model.Data;
 
 namespace FireEmblem.Model.Combat
 {
-    public abstract class Unit
+    public class Unit
     {
         private int _damageTaken;
         public int MaxHp => Stats.Hp;
         public int CurrentHp => Math.Max(MaxHp - _damageTaken, 0);
 
-        protected Unit()
+        private UnitData _unitData;
+
+        private Unit(UnitData unitData)
         {
             Weapon = Weapon.None;
+            _unitData = unitData;
         }
 
-        public abstract string Name { get; }
-        public abstract IStatBlock Stats { get; }
+        public static Unit Create(UnitData unitData)
+        {
+            return new Unit(unitData);
+        }
+
+        public string Name => _unitData.Name;
+        public IStatBlock Stats => _unitData.Stats;
         public Weapon Weapon { get; set; }
 
         public int GetAttack()
