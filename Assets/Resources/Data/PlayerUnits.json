@@ -11,6 +11,11 @@
       "speed": 9,
       "defence": 7,
       "resistance": 5
-    }
+    },
+    "inventory": [
+      {
+        "weaponDataId": "IronAxe"
+      }
+    ]
   }
 ]

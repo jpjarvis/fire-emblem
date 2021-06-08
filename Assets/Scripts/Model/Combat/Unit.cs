@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using FireEmblem.Model.Data;
+using FireEmblem.Model.Data.Serialization;
 
 namespace FireEmblem.Model.Combat
 {
@@ -9,7 +12,9 @@ namespace FireEmblem.Model.Combat
         public int MaxHp => Stats.Hp;
         public int CurrentHp => Math.Max(MaxHp - _damageTaken, 0);
 
-        private UnitData _unitData;
+        public List<IItem> Inventory { get; } = new List<IItem>();
+        
+        private readonly UnitData _unitData;
 
         private Unit(UnitData unitData)
         {
@@ -19,7 +24,20 @@ namespace FireEmblem.Model.Combat
 
         public static Unit Create(UnitData unitData)
         {
-            return new Unit(unitData);
+            var unit = new Unit(unitData);
+
+            foreach (var itemData in unitData.Inventory)
+            {
+                var weaponData = WeaponLoader.LoadWeaponData(itemData.WeaponDataId);
+                unit.Inventory.Add(Weapon.Create(weaponData));
+            }
+
+            if (unit.Inventory.Any() && unit.Inventory[0] is Weapon weapon)
+            {
+                unit.Weapon = weapon;
+            }
+            
+            return unit;
         }
 
         public string Name => _unitData.Name;

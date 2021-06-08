@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FireEmblem.Model.Data
 {
@@ -7,5 +8,7 @@ namespace FireEmblem.Model.Data
     {
         public string Name { get; set; }
         public StatBlock Stats { get; set; }
+        
+        public List<WeaponItemData> Inventory { get; set; } = new List<WeaponItemData>();
     }
 }
