@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using FireEmblem.MapView;
 using FireEmblem.Model.Combat;
 using FireEmblem.Model.Data.Serialization;
 using UnityEngine;
@@ -23,8 +24,8 @@ namespace FireEmblem.Test
             Debug.Log($"Crit: {unit.GetCrit()}");
             Debug.Log($"AS: {unit.GetAttackSpeed()}");
         }
-        
-        private void Start()
+
+        private static void RunTestCombat()
         {
             var map = MapLoader.LoadMap("Test");
             var playerUnits = PlayerUnitLoader.LoadPlayerUnits();
@@ -65,6 +66,17 @@ namespace FireEmblem.Test
                     Debug.Log($"{attack.Target.Name} was slain by {attack.Attacker.Name}!");
                 }
             }
+        }
+
+        private static void StartTestMap()
+        {
+            var mapGenerator = FindObjectOfType<MapGenerator>();
+            mapGenerator.GenerateMap("Test");
+        }
+        
+        private void Start()
+        {
+            StartTestMap();
         }
     }
 }
