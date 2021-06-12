@@ -10,5 +10,6 @@
         int Speed { get; }
         int Defence { get; }
         int Resistance { get; }
+        int Movement { get; }
     }
 }

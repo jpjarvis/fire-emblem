@@ -25,7 +25,6 @@ namespace FireEmblem.MapView
         {
             var mapData = MapLoader.LoadMap(mapId);
             var map = Map.Create(mapData);
-            var playerUnits = PlayerUnitLoader.LoadPlayerUnits();
 
             foreach (var playerUnit in map.PlayerUnits)
             {
@@ -36,11 +35,13 @@ namespace FireEmblem.MapView
             {
                 CreateEnemyUnit(enemyUnit);
             }
+
+            MapManager.Instance.SetMap(map);
         }
 
         private void MoveObjectToGridPosition(GameObject obj, int x, int y)
         {
-            obj.transform.localPosition = _grid.GetCellCenterLocal(new Vector3Int(x - 10, y - 10, 0));
+            obj.transform.localPosition = _grid.GetCellCenterLocal(new Vector3Int(x, y, 0));
         }
         
         private void CreatePlayerUnit(MapUnit mapUnit)

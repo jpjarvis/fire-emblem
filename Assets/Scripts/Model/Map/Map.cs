@@ -3,13 +3,14 @@ using System.Linq;
 using FireEmblem.Model.Combat;
 using FireEmblem.Model.Data;
 using FireEmblem.Model.Data.Serialization;
+using Unity.VisualScripting.Dependencies.NCalc;
 
 namespace FireEmblem.Model.Map
 {
     public class Map
     {
-        public List<MapUnit> PlayerUnits { get; }
-        public List<MapUnit> EnemyUnits { get; }
+        public List<MapUnit> PlayerUnits { get; } = new List<MapUnit>();
+        public List<MapUnit> EnemyUnits { get; } = new List<MapUnit>();
 
         public static Map Create(MapData mapData)
         {
@@ -29,6 +30,11 @@ namespace FireEmblem.Model.Map
             }
 
             return map;
+        }
+
+        public bool CanMoveThrough(MapPosition mapPosition)
+        {
+            return !EnemyUnits.Any(unit => unit.Position.Equals(mapPosition));
         }
     }
 }

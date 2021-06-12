@@ -13,5 +13,6 @@ namespace FireEmblem.Model.Data
         public int Speed { get; set; }
         public int Defence { get; set; }
         public int Resistance { get; set; }
+        public int Movement { get; set; }
     }
 }

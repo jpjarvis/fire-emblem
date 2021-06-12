@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 387832523}
   - component: {fileID: 387832522}
   - component: {fileID: 387832524}
+  - component: {fileID: 387832525}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -181,6 +182,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerUnitPrefab: {fileID: 8841880787111611814, guid: f1abdc4e3c6360844bab63c25ad7bbda, type: 3}
   enemyUnitPrefab: {fileID: 5877831957417282455, guid: feb303b5e72fe9f45b33063c7b7a8c5d, type: 3}
+--- !u!114 &387832525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387832521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 398e5d74b029437d87af1b70d7204678, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementRangeTilePrefab: {fileID: 5108296133813379320, guid: 91a258cbe37d77e4aa13967b0f38254f, type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

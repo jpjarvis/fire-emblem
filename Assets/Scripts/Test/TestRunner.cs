@@ -2,6 +2,7 @@
 using FireEmblem.MapView;
 using FireEmblem.Model.Combat;
 using FireEmblem.Model.Data.Serialization;
+using FireEmblem.Model.Map;
 using UnityEngine;
 
 namespace FireEmblem.Test

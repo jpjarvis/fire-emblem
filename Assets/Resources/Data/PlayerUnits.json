@@ -10,7 +10,8 @@
       "luck": 8,
       "speed": 9,
       "defence": 7,
-      "resistance": 5
+      "resistance": 5,
+      "movement": 5
     },
     "inventory": [
       {

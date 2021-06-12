@@ -17,8 +17,8 @@
     {
       "unitDataId": "bandit",
       "position": {
-        "x": 10,
-        "y": 10
+        "x": 0,
+        "y": 3
       }
     }
   ],
@@ -34,7 +34,8 @@
         "luck": 2,
         "speed": 9,
         "defence": 5,
-        "resistance": 2
+        "resistance": 2,
+        "movement": 5
       },
       "inventory": [
         {
