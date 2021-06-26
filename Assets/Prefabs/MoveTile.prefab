@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9129618472703393360}
   - component: {fileID: 3807338763583578476}
   m_Layer: 0
-  m_Name: BlueHighlight
+  m_Name: MoveTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

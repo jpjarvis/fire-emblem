@@ -10,8 +10,7 @@ namespace FireEmblem.MapView
 
         private void OnMouseDown()
         {
-            MapManager.Instance.ClearMovementRange();
-            MapManager.Instance.ShowMovementRange(Unit);
+            MapManager.Instance.SelectUnit(Unit);
         }
     }
 }

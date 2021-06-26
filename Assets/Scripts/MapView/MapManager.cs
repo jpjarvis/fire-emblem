@@ -26,7 +26,14 @@ namespace FireEmblem.MapView
             _map = map;
         }
 
-        public void ShowMovementRange(MapUnit mapUnit)
+        public void SelectUnit(MapUnit mapUnit)
+        {
+            _selectedUnit = mapUnit;
+            ClearMovementRange();
+            ShowMovementRange(mapUnit);
+        }
+        
+        private void ShowMovementRange(MapUnit mapUnit)
         {
             var tiles = MovementGenerator.GenerateAccessibleTiles(_map, mapUnit);
 
