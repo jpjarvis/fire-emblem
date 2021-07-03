@@ -8,9 +8,11 @@ namespace FireEmblem.MapView
     {
         public MapUnit Unit { get; set; }
 
+        public Action OnClick { get; set; }
+        
         private void OnMouseDown()
         {
-            MapManager.Instance.SelectUnit(Unit);
+            OnClick();
         }
     }
 }

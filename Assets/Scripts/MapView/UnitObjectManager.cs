@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FireEmblem.Model.Map;
 using UnityEngine;
@@ -18,11 +19,13 @@ namespace FireEmblem.MapView
             _grid = grid;
         }
 
-        public void CreatePlayerUnit(MapUnit mapUnit)
+        public void CreatePlayerUnit(MapUnit mapUnit, Action onClick)
         {
-            var playerUnit = Instantiate(_unitPrefabProvider.GetPlayerUnitPrefab(), transform);
-            playerUnit.GetComponent<PlayerUnit>().Unit = mapUnit;
-            MoveObjectToGridPosition(playerUnit, mapUnit.Position.X, mapUnit.Position.Y);
+            var unitObject = Instantiate(_unitPrefabProvider.GetPlayerUnitPrefab(), transform);
+            var playerUnit = unitObject.GetComponent<PlayerUnit>();
+            playerUnit.Unit = mapUnit;
+            playerUnit.OnClick = onClick;
+            MoveObjectToGridPosition(unitObject, mapUnit.Position.X, mapUnit.Position.Y);
         }
         
         public void CreateEnemyUnit(MapUnit mapUnit)
