@@ -3,33 +3,35 @@ using System.Collections.Generic;
 using FireEmblem.Common;
 using FireEmblem.Model.Map;
 using UnityEngine;
+using Zenject;
 
 namespace FireEmblem.MapView
 {
     public class MapManager : Singleton<MapManager>
     {
-        [SerializeField] private GameObject movementRangeTilePrefab;
-        
+        private TileObjectManager _tileObjectManager;
         private Map _map;
+        private IMapGenerator _mapGenerator;
 
-        private Grid _grid;
-
-        private readonly List<GameObject> _highlightedTiles = new List<GameObject>();
+        private MapUnit _selectedUnit = null;
         
-        private void Awake()
+        [Inject]
+        public void Init(TileObjectManager tileObjectManager, Map map, IMapGenerator mapGenerator)
         {
-            _grid = GetComponent<Grid>();
+            _tileObjectManager = tileObjectManager;
+            _map = map;
+            _mapGenerator = mapGenerator;
         }
 
-        public void SetMap(Map map)
+        private void Start()
         {
-            _map = map;
+            _mapGenerator.GenerateMap(_map);
         }
 
         public void SelectUnit(MapUnit mapUnit)
         {
             _selectedUnit = mapUnit;
-            ClearMovementRange();
+            _tileObjectManager.DestroyAll();
             ShowMovementRange(mapUnit);
         }
         
@@ -39,17 +41,8 @@ namespace FireEmblem.MapView
 
             foreach (var tile in tiles)
             {
-                var tileObject = Instantiate(movementRangeTilePrefab, transform);
-                tileObject.transform.position =
-                    _grid.GetCellCenterWorld(new Vector3Int(tile.Position.X, tile.Position.Y, 0));
-                _highlightedTiles.Add(tileObject);
+                _tileObjectManager.CreateMoveTile(tile.Position.X, tile.Position.Y);
             }
-        }
-
-        public void ClearMovementRange()
-        {
-            _highlightedTiles.ForEach(Destroy);
-            _highlightedTiles.Clear();
         }
     }
 }

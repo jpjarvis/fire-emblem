@@ -1,61 +1,27 @@
-using System.Linq;
-using FireEmblem.Model.Combat;
-using FireEmblem.Model.Data.Serialization;
 using FireEmblem.Model.Map;
-using UnityEngine;
 
 namespace FireEmblem.MapView
 {
-    public class MapGenerator : MonoBehaviour
+    public class MapGenerator : IMapGenerator
     {
-        [SerializeField]
-        private GameObject playerUnitPrefab;
+        private readonly UnitObjectManager _unitObjectManager;
         
-        [SerializeField]
-        private GameObject enemyUnitPrefab;
-        
-        private Grid _grid;
-
-        private void Awake()
+        public MapGenerator(UnitObjectManager unitObjectManager)
         {
-            _grid = GetComponent<Grid>();
+            _unitObjectManager = unitObjectManager;
         }
 
-        public void GenerateMap(string mapId)
+        public void GenerateMap(Map map)
         {
-            var mapData = MapLoader.LoadMap(mapId);
-            var map = Map.Create(mapData);
-
             foreach (var playerUnit in map.PlayerUnits)
             {
-                CreatePlayerUnit(playerUnit);
+                _unitObjectManager.CreatePlayerUnit(playerUnit);
             }
 
             foreach (var enemyUnit in map.EnemyUnits)
             {
-                CreateEnemyUnit(enemyUnit);
+                _unitObjectManager.CreateEnemyUnit(enemyUnit);
             }
-
-            MapManager.Instance.SetMap(map);
-        }
-
-        private void MoveObjectToGridPosition(GameObject obj, int x, int y)
-        {
-            obj.transform.localPosition = _grid.GetCellCenterLocal(new Vector3Int(x, y, 0));
-        }
-        
-        private void CreatePlayerUnit(MapUnit mapUnit)
-        {
-            var playerUnit = Instantiate(playerUnitPrefab, transform);
-            playerUnit.GetComponent<PlayerUnit>().Unit = mapUnit;
-            MoveObjectToGridPosition(playerUnit, mapUnit.Position.X, mapUnit.Position.Y);
-        }
-        
-        private void CreateEnemyUnit(MapUnit mapUnit)
-        {
-            var enemyUnit = Instantiate(enemyUnitPrefab, transform);
-            enemyUnit.GetComponent<EnemyUnit>().Unit = mapUnit;
-            MoveObjectToGridPosition(enemyUnit, mapUnit.Position.X, mapUnit.Position.Y);
         }
     }
 }

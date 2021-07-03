@@ -3,7 +3,6 @@ using System.Linq;
 using FireEmblem.Model.Combat;
 using FireEmblem.Model.Data;
 using FireEmblem.Model.Data.Serialization;
-using Unity.VisualScripting.Dependencies.NCalc;
 
 namespace FireEmblem.Model.Map
 {

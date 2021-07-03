@@ -68,16 +68,5 @@ namespace FireEmblem.Test
                 }
             }
         }
-
-        private static void StartTestMap()
-        {
-            var mapGenerator = FindObjectOfType<MapGenerator>();
-            mapGenerator.GenerateMap("Test");
-        }
-        
-        private void Start()
-        {
-            StartTestMap();
-        }
     }
 }
