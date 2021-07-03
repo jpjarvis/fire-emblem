@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FireEmblem.Model.Map;
 using UnityEngine;
@@ -18,11 +19,12 @@ namespace FireEmblem.MapView
             _grid = grid;
         }
 
-        public void CreateMoveTile(int x, int y)
+        public void CreateMoveTile(int x, int y, Action onClick)
         {
             var tileObject = Instantiate(_tilePrefabProvider.GetMoveTilePrefab(), transform);
             tileObject.transform.position =
                 _grid.GetCellCenterWorld(new Vector3Int(x, y, 0));
+            tileObject.GetComponent<ClickHandler>().OnClick = onClick;
             _activeTileObjects.Add(tileObject);
         }
 

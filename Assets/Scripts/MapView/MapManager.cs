@@ -1,4 +1,4 @@
-using FireEmblem.Common;
+using FireEmblem.Model.Data;
 using FireEmblem.Model.Map;
 using UnityEngine;
 using Zenject;
@@ -39,11 +39,17 @@ namespace FireEmblem.MapView
             }
         }
         
-        public void SelectUnit(MapUnit mapUnit)
+        private void SelectUnit(MapUnit mapUnit)
         {
             _selectedUnit = mapUnit;
             _tileObjectManager.DestroyAll();
             ShowMovementRange(mapUnit);
+        }
+
+        private void MoveUnit(MapUnit mapUnit, MapPosition position)
+        {
+            _unitObjectManager.MoveUnit(mapUnit.Position, position);
+            mapUnit.Position = position;
         }
         
         private void ShowMovementRange(MapUnit mapUnit)
@@ -52,7 +58,14 @@ namespace FireEmblem.MapView
 
             foreach (var tile in tiles)
             {
-                _tileObjectManager.CreateMoveTile(tile.Position.X, tile.Position.Y);
+                _tileObjectManager.CreateMoveTile(tile.Position.X, tile.Position.Y, () =>
+                {
+                    if (_selectedUnit != null)
+                    {
+                        MoveUnit(_selectedUnit, tile.Position);
+                    }
+                    _tileObjectManager.DestroyAll();
+                });
             }
         }
     }
