@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using FireEmblem.Model.Map;
 using UnityEngine;
 using Zenject;
 

@@ -1,4 +1,3 @@
-using System;
 using FireEmblem.Model.Map;
 using UnityEngine;
 
