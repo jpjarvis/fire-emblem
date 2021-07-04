@@ -16,6 +16,7 @@ namespace FireEmblem.MapView
         {
             Container.Bind<IUnitPrefabProvider>().FromInstance(new UnitPrefabProvider(unitPrefabs));
             Container.Bind<ITilePrefabProvider>().FromInstance(new TilePrefabProvider(tilePrefabs));
+            Container.Bind<IUnitStatsDisplayer>().To<ConsoleUnitStatsDisplayer>().AsTransient();
 
             Container.Bind<Grid>().FromInstance(grid).AsSingle();
 

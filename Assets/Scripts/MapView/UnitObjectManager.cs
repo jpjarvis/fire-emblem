@@ -27,11 +27,12 @@ namespace FireEmblem.MapView
             _grid = grid;
         }
 
-        public void CreatePlayerUnit(MapUnit mapUnit, Action onClick)
+        public void CreatePlayerUnit(MapUnit mapUnit, Action onClick, Action onMouseOver)
         {
             var unitObject = Instantiate(_unitPrefabProvider.GetPlayerUnitPrefab(), transform);
             unitObject.GetComponent<PlayerUnit>().Unit = mapUnit;
-            unitObject.GetComponent<ClickHandler>().OnClick = onClick;
+            unitObject.GetComponent<MouseHandler>().ActionOnClick = onClick;
+            unitObject.GetComponent<MouseHandler>().ActionOnMouseOver = onMouseOver;
             MoveObjectToGridPosition(unitObject, mapUnit.Position);
             _activeUnitObjects.Add(new ActiveUnitObject
             {

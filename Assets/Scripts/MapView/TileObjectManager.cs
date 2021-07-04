@@ -23,7 +23,7 @@ namespace FireEmblem.MapView
             var tileObject = Instantiate(_tilePrefabProvider.GetMoveTilePrefab(), transform);
             tileObject.transform.position =
                 _grid.GetCellCenterWorld(new Vector3Int(x, y, 0));
-            tileObject.GetComponent<ClickHandler>().OnClick = onClick;
+            tileObject.GetComponent<MouseHandler>().ActionOnClick = onClick;
             _activeTileObjects.Add(tileObject);
         }
 

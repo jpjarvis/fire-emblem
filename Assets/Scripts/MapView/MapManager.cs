@@ -10,15 +10,17 @@ namespace FireEmblem.MapView
         private TileObjectManager _tileObjectManager;
         private UnitObjectManager _unitObjectManager;
         private Map _map;
+        private IUnitStatsDisplayer _unitStatsDisplayer;
 
-        private MapUnit _selectedUnit = null;
+        private MapUnit _selectedUnit;
 
         [Inject]
-        public void Init(TileObjectManager tileObjectManager, UnitObjectManager unitObjectManager, Map map)
+        public void Init(TileObjectManager tileObjectManager, UnitObjectManager unitObjectManager, Map map, IUnitStatsDisplayer unitStatsDisplayer)
         {
             _tileObjectManager = tileObjectManager;
             _unitObjectManager = unitObjectManager;
             _map = map;
+            _unitStatsDisplayer = unitStatsDisplayer;
         }
 
         private void Start()
@@ -30,7 +32,7 @@ namespace FireEmblem.MapView
         {
             foreach (var playerUnit in map.PlayerUnits)
             {
-                _unitObjectManager.CreatePlayerUnit(playerUnit, () => {SelectUnit(playerUnit);});
+                _unitObjectManager.CreatePlayerUnit(playerUnit, () => { SelectUnit(playerUnit);}, () => { _unitStatsDisplayer.DisplayStats(playerUnit.Unit); });
             }
 
             foreach (var enemyUnit in map.EnemyUnits)
