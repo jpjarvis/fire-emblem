@@ -10,11 +10,7 @@ namespace FireEmblem.MapView
 
         public Unit Unit { get; set; }
 
-        public MapPosition Position => new MapPosition
-        {
-            X = Mathf.FloorToInt(transform.localPosition.x),
-            Y = Mathf.FloorToInt(transform.localPosition.y)
-        };
+        public MapPosition Position => MapPosition.FromVector(transform.position);
         
         private void Awake()
         {

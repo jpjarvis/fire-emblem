@@ -13,11 +13,7 @@ namespace FireEmblem.MapView
             {
                 var position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Debug.Log(position);
-                map.SelectCell(new MapPosition
-                {
-                    X = Mathf.FloorToInt(position.x),
-                    Y = Mathf.FloorToInt(position.y)
-                });
+                map.SelectCell(MapPosition.FromVector(position));
             }
         }
     }

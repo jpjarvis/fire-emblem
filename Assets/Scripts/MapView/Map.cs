@@ -90,26 +90,10 @@ namespace FireEmblem.MapView
                 {
                     var tilesToCheck = new List<MapPosition>
                     {
-                        new MapPosition
-                        {
-                            X = tile.X + 1,
-                            Y = tile.Y
-                        },
-                        new MapPosition
-                        {
-                            X = tile.X - 1,
-                            Y = tile.Y
-                        },
-                        new MapPosition
-                        {
-                            X = tile.X,
-                            Y = tile.Y + 1
-                        },
-                        new MapPosition
-                        {
-                            X = tile.X,
-                            Y = tile.Y - 1
-                        },
+                        new MapPosition(tile.X + 1, tile.Y),
+                        new MapPosition(tile.X - 1, tile.Y),
+                        new MapPosition(tile.X, tile.Y + 1),
+                        new MapPosition(tile.X, tile.Y - 1),
                     };
 
                     foreach (var tileToCheck in tilesToCheck)
