@@ -12,9 +12,11 @@ namespace FireEmblem.MapView
         private IUnitStatsDisplayer _unitStatsDisplayer;
         private List<PlayerUnit> PlayerUnits { get; set; } = new List<PlayerUnit>();
         private List<EnemyUnit> EnemyUnits { get; set; } = new List<EnemyUnit>();
-
-        private BaseUnit _selectedUnit;
+        
         private Grid _grid;
+        
+        private BaseUnit _selectedUnit;
+        private List<AccessibleTile> _accessibleTiles;
 
         [Inject]
         public void Init(TileObjectManager tileObjectManager, IUnitStatsDisplayer unitStatsDisplayer, Grid grid)
@@ -27,15 +29,30 @@ namespace FireEmblem.MapView
             _grid = grid;
         }
         
-        private void SelectUnit(BaseUnit mapUnit)
+        private void SelectUnit(BaseUnit unit)
         {
-            _selectedUnit = mapUnit;
+            _selectedUnit = unit;
             _tileObjectManager.DestroyAll();
-            ShowMovementRange(mapUnit);
+            
+            _accessibleTiles = GenerateAccessibleTiles(unit);
+            ShowAccessibleTiles(_accessibleTiles);
         }
 
         public void SelectCell(MapPosition position)
         {
+            if (_selectedUnit != null)
+            {
+                var tile = _accessibleTiles.FirstOrDefault(t => t.Position.Equals(position));
+                if (tile is { Accessibility: TileAccessibility.CanMoveTo })
+                {
+                    MoveObjectToGridPosition(_selectedUnit, position);
+                }
+                _tileObjectManager.DestroyAll();
+                _tileObjectManager.DestroyAll();
+                _selectedUnit = null;
+                return;
+            }
+            
             var selectedPlayerUnit = PlayerUnits.FirstOrDefault(u => u.Position.Equals(position));
             if (selectedPlayerUnit)
             {
@@ -49,20 +66,11 @@ namespace FireEmblem.MapView
             component.transform.localPosition = _grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
         }
         
-        private void ShowMovementRange(BaseUnit mapUnit)
+        private void ShowAccessibleTiles(List<AccessibleTile> accessibleTiles)
         {
-            var tiles = GenerateAccessibleTiles(mapUnit);
-
-            foreach (var tile in tiles)
+            foreach (var tile in accessibleTiles)
             {
-                _tileObjectManager.CreateMoveTile(tile.Position.X, tile.Position.Y, () =>
-                {
-                    if (_selectedUnit != null)
-                    {
-                        MoveObjectToGridPosition(_selectedUnit, tile.Position);
-                    }
-                    _tileObjectManager.DestroyAll();
-                });
+                _tileObjectManager.CreateMoveTile(tile.Position.X, tile.Position.Y);
             }
         }
 

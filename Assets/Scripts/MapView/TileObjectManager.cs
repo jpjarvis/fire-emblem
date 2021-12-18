@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
@@ -18,12 +17,11 @@ namespace FireEmblem.MapView
             _grid = grid;
         }
 
-        public void CreateMoveTile(int x, int y, Action onClick)
+        public void CreateMoveTile(int x, int y)
         {
             var tileObject = Instantiate(_tilePrefabProvider.GetMoveTilePrefab(), transform);
             tileObject.transform.position =
                 _grid.GetCellCenterWorld(new Vector3Int(x, y, 0));
-            tileObject.GetComponent<MouseHandler>().ActionOnClick = onClick;
             _activeTileObjects.Add(tileObject);
         }
 
