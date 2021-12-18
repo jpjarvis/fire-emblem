@@ -15,18 +15,6 @@ namespace FireEmblem.Model.Combat
             Data = weaponData;
         }
 
-        public static readonly Weapon None = new Weapon(
-            new WeaponData
-            {
-                Name = "None",
-                Might = 0,
-                Crit = 0,
-                Hit = 100,
-                IsMagic = false,
-                MaxRange = 1,
-                MinRange = 1
-            });
-
         public static Weapon Create(WeaponData weaponData)
         {
             return new Weapon(weaponData);

@@ -1,10 +1,6 @@
-using FireEmblem.Model.Map;
-using UnityEngine;
-
 namespace FireEmblem.MapView
 {
-    public class EnemyUnit : MonoBehaviour
+    public class EnemyUnit : BaseUnit
     {
-        public MapUnit Unit { get; set; }
     }
 }

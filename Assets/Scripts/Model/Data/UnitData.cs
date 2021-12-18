@@ -1,14 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace FireEmblem.Model.Data
 {
-    [Serializable]
-    public class UnitData
+    [CreateAssetMenu(fileName = "NewUnit", menuName = "Fire Emblem/Unit", order = 1)]
+    public class UnitData : ScriptableObject
     {
-        public string Name { get; set; }
-        public StatBlock Stats { get; set; }
+        [SerializeField] private string name;
+        [SerializeField] private StatBlock stats;
+        [SerializeField] private List<WeaponData> inventory;
         
-        public List<WeaponItemData> Inventory { get; set; } = new List<WeaponItemData>();
+        public string Name => name;
+        public StatBlock Stats => stats;
+
+        public List<WeaponData> Inventory => inventory;
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Model.Data;
-using FireEmblem.Model.Data.Serialization;
 
 namespace FireEmblem.Model.Combat
 {
@@ -18,7 +17,6 @@ namespace FireEmblem.Model.Combat
 
         private Unit(UnitData unitData)
         {
-            Weapon = Weapon.None;
             _unitData = unitData;
         }
 
@@ -28,8 +26,7 @@ namespace FireEmblem.Model.Combat
 
             foreach (var itemData in unitData.Inventory)
             {
-                var weaponData = WeaponLoader.LoadWeaponData(itemData.WeaponDataId);
-                unit.Inventory.Add(Weapon.Create(weaponData));
+                unit.Inventory.Add(Weapon.Create(itemData));
             }
 
             if (unit.Inventory.Any() && unit.Inventory[0] is Weapon weapon)
