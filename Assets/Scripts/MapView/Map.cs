@@ -11,7 +11,7 @@ namespace FireEmblem.MapView
         [SerializeField] private MapGrid mapGrid;
         private List<PlayerUnit> PlayerUnits { get; set; } = new List<PlayerUnit>();
         private List<EnemyUnit> EnemyUnits { get; set; } = new List<EnemyUnit>();
-        
+
         private BaseUnit _selectedUnit;
         private List<AccessibleTile> _accessibleTiles;
 
@@ -20,12 +20,12 @@ namespace FireEmblem.MapView
             PlayerUnits = GetComponentsInChildren<PlayerUnit>().ToList();
             EnemyUnits = GetComponentsInChildren<EnemyUnit>().ToList();
         }
-        
+
         private void SelectUnit(BaseUnit unit)
         {
             _selectedUnit = unit;
             tileObjectManager.DestroyAll();
-            
+
             _accessibleTiles = GenerateAccessibleTiles(unit);
             ShowAccessibleTiles(_accessibleTiles);
         }
@@ -39,11 +39,12 @@ namespace FireEmblem.MapView
                 {
                     mapGrid.MoveObjectToGridPosition(_selectedUnit.gameObject, position);
                 }
+
                 tileObjectManager.DestroyAll();
                 _selectedUnit = null;
                 return;
             }
-            
+
             var selectedPlayerUnit = PlayerUnits.FirstOrDefault(u => u.Position.Equals(position));
             if (selectedPlayerUnit)
             {
@@ -79,7 +80,8 @@ namespace FireEmblem.MapView
 
         private bool CanMoveThrough(MapPosition mapPosition)
         {
-            return !EnemyUnits.Any(unit => unit.Position.Equals(mapPosition));
+            return !EnemyUnits.Any(unit => unit.Position.Equals(mapPosition)) &&
+                   mapGrid.GetTileAt(mapPosition).IsTraversable;
         }
 
         private List<AccessibleTile> GenerateAccessibleTiles(BaseUnit unit)
@@ -89,11 +91,11 @@ namespace FireEmblem.MapView
             var minAttackRange = unit.Unit.Weapon.Data.MinRange;
             var maxAttackRange = unit.Unit.Weapon.Data.MaxRange;
 
-            var workingTiles = new List<MapPosition> {startPosition};
+            var workingTiles = new List<MapPosition> { startPosition };
             var accessibleTiles = new List<AccessibleTile>();
 
             var spacesMoved = 0;
-            
+
             while (spacesMoved < maximumMoveDistance && workingTiles.Any())
             {
                 var newWorkingTiles = new List<MapPosition>();
@@ -109,8 +111,8 @@ namespace FireEmblem.MapView
 
                     foreach (var tileToCheck in tilesToCheck)
                     {
-                        if (CanMoveThrough(tileToCheck) 
-                            && !accessibleTiles.Any(t => t.Position.Equals(tileToCheck)) 
+                        if (CanMoveThrough(tileToCheck)
+                            && !accessibleTiles.Any(t => t.Position.Equals(tileToCheck))
                             && !newWorkingTiles.Any(t => t.Equals(tileToCheck))
                             && !tileToCheck.Equals(startPosition))
                         {
@@ -127,7 +129,7 @@ namespace FireEmblem.MapView
                 workingTiles = newWorkingTiles;
                 spacesMoved++;
             }
-            
+
             return accessibleTiles;
         }
     }
