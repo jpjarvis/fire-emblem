@@ -1,27 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Zenject;
 
 namespace FireEmblem.MapView
 {
     public class TileObjectManager : MonoBehaviour
     {
         private readonly List<GameObject> _activeTileObjects = new List<GameObject>();
-        private ITilePrefabProvider _tilePrefabProvider;
-        private Grid _grid;
-
-        [Inject]
-        public void Init(ITilePrefabProvider tilePrefabProvider, Grid grid)
-        {
-            _tilePrefabProvider = tilePrefabProvider;
-            _grid = grid;
-        }
+        
+        [SerializeField] private GameObject moveTilePrefab;
+        [SerializeField] private Grid grid;
 
         public void CreateMoveTile(int x, int y)
         {
-            var tileObject = Instantiate(_tilePrefabProvider.GetMoveTilePrefab(), transform);
+            var tileObject = Instantiate(moveTilePrefab, transform);
             tileObject.transform.position =
-                _grid.GetCellCenterWorld(new Vector3Int(x, y, 0));
+                grid.GetCellCenterWorld(new Vector3Int(x, y, 0));
             _activeTileObjects.Add(tileObject);
         }
 

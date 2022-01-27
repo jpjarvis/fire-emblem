@@ -2,37 +2,29 @@ using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Model.Data;
 using UnityEngine;
-using Zenject;
 
 namespace FireEmblem.MapView
 {
     public class Map : MonoBehaviour
     {
-        private TileObjectManager _tileObjectManager;
-        private IUnitStatsDisplayer _unitStatsDisplayer;
+        [SerializeField] private TileObjectManager tileObjectManager;
+        [SerializeField] private Grid grid;
         private List<PlayerUnit> PlayerUnits { get; set; } = new List<PlayerUnit>();
         private List<EnemyUnit> EnemyUnits { get; set; } = new List<EnemyUnit>();
-        
-        private Grid _grid;
         
         private BaseUnit _selectedUnit;
         private List<AccessibleTile> _accessibleTiles;
 
-        [Inject]
-        public void Init(TileObjectManager tileObjectManager, IUnitStatsDisplayer unitStatsDisplayer, Grid grid)
+        private void Awake()
         {
             PlayerUnits = GetComponentsInChildren<PlayerUnit>().ToList();
             EnemyUnits = GetComponentsInChildren<EnemyUnit>().ToList();
-            
-            _tileObjectManager = tileObjectManager;
-            _unitStatsDisplayer = unitStatsDisplayer;
-            _grid = grid;
         }
         
         private void SelectUnit(BaseUnit unit)
         {
             _selectedUnit = unit;
-            _tileObjectManager.DestroyAll();
+            tileObjectManager.DestroyAll();
             
             _accessibleTiles = GenerateAccessibleTiles(unit);
             ShowAccessibleTiles(_accessibleTiles);
@@ -47,8 +39,8 @@ namespace FireEmblem.MapView
                 {
                     MoveObjectToGridPosition(_selectedUnit, position);
                 }
-                _tileObjectManager.DestroyAll();
-                _tileObjectManager.DestroyAll();
+                tileObjectManager.DestroyAll();
+                tileObjectManager.DestroyAll();
                 _selectedUnit = null;
                 return;
             }
@@ -57,20 +49,37 @@ namespace FireEmblem.MapView
             if (selectedPlayerUnit)
             {
                 SelectUnit(selectedPlayerUnit);
-                _unitStatsDisplayer.DisplayStats(selectedPlayerUnit.Unit);
+                DisplayStats(selectedPlayerUnit);
             }
+        }
+
+        private static void DisplayStats(BaseUnit unit)
+        {
+            Debug.Log($"{unit.Unit.Name} wielding {unit.Unit.Weapon.Name}");
+            Debug.Log("STR: " + unit.Unit.Stats.Strength);
+            Debug.Log("MAG: " + unit.Unit.Stats.Magic);
+            Debug.Log("DEX: " + unit.Unit.Stats.Dexterity);
+            Debug.Log("LCK: " + unit.Unit.Stats.Luck);
+            Debug.Log("SPE: " + unit.Unit.Stats.Speed);
+            Debug.Log("DEF: " + unit.Unit.Stats.Defence);
+            Debug.Log("RES: " + unit.Unit.Stats.Resistance);
+
+            Debug.Log($"Attack: {unit.Unit.GetAttack()}");
+            Debug.Log($"Hit: {unit.Unit.GetHit()}");
+            Debug.Log($"Crit: {unit.Unit.GetCrit()}");
+            Debug.Log($"AS: {unit.Unit.GetAttackSpeed()}");
         }
 
         private void MoveObjectToGridPosition(Component component, MapPosition position)
         {
-            component.transform.localPosition = _grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
+            component.transform.localPosition = grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
         }
         
         private void ShowAccessibleTiles(List<AccessibleTile> accessibleTiles)
         {
             foreach (var tile in accessibleTiles)
             {
-                _tileObjectManager.CreateMoveTile(tile.Position.X, tile.Position.Y);
+                tileObjectManager.CreateMoveTile(tile.Position.X, tile.Position.Y);
             }
         }
 
