@@ -8,7 +8,7 @@ namespace FireEmblem.MapView
     public class Map : MonoBehaviour
     {
         [SerializeField] private TileObjectManager tileObjectManager;
-        [SerializeField] private Grid grid;
+        [SerializeField] private MapGrid mapGrid;
         private List<PlayerUnit> PlayerUnits { get; set; } = new List<PlayerUnit>();
         private List<EnemyUnit> EnemyUnits { get; set; } = new List<EnemyUnit>();
         
@@ -37,9 +37,8 @@ namespace FireEmblem.MapView
                 var tile = _accessibleTiles.FirstOrDefault(t => t.Position.Equals(position));
                 if (tile is { Accessibility: TileAccessibility.CanMoveTo })
                 {
-                    MoveObjectToGridPosition(_selectedUnit, position);
+                    mapGrid.MoveObjectToGridPosition(_selectedUnit.gameObject, position);
                 }
-                tileObjectManager.DestroyAll();
                 tileObjectManager.DestroyAll();
                 _selectedUnit = null;
                 return;
@@ -70,16 +69,11 @@ namespace FireEmblem.MapView
             Debug.Log($"AS: {unit.Unit.GetAttackSpeed()}");
         }
 
-        private void MoveObjectToGridPosition(Component component, MapPosition position)
-        {
-            component.transform.localPosition = grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
-        }
-        
         private void ShowAccessibleTiles(List<AccessibleTile> accessibleTiles)
         {
             foreach (var tile in accessibleTiles)
             {
-                tileObjectManager.CreateMoveTile(tile.Position.X, tile.Position.Y);
+                tileObjectManager.CreateMoveTile(tile.Position);
             }
         }
 

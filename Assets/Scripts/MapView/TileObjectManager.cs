@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FireEmblem.Model.Data;
 using UnityEngine;
 
 namespace FireEmblem.MapView
@@ -8,13 +9,11 @@ namespace FireEmblem.MapView
         private readonly List<GameObject> _activeTileObjects = new List<GameObject>();
         
         [SerializeField] private GameObject moveTilePrefab;
-        [SerializeField] private Grid grid;
+        [SerializeField] private MapGrid grid;
 
-        public void CreateMoveTile(int x, int y)
+        public void CreateMoveTile(MapPosition mapPosition)
         {
-            var tileObject = Instantiate(moveTilePrefab, transform);
-            tileObject.transform.position =
-                grid.GetCellCenterWorld(new Vector3Int(x, y, 0));
+            var tileObject = grid.InstantiateAtGridPosition(moveTilePrefab, mapPosition);
             _activeTileObjects.Add(tileObject);
         }
 
