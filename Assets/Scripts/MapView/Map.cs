@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using FireEmblem.MapView.UI;
 using FireEmblem.Model.Data;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace FireEmblem.MapView
     {
         [SerializeField] private TileObjectManager tileObjectManager;
         [SerializeField] private MapGrid mapGrid;
+        [SerializeField] private UnitStatsDisplay unitStatsDisplay;
         private List<PlayerUnit> PlayerUnits { get; set; } = new List<PlayerUnit>();
         private List<EnemyUnit> EnemyUnits { get; set; } = new List<EnemyUnit>();
 
@@ -24,8 +26,9 @@ namespace FireEmblem.MapView
         private void SelectUnit(BaseUnit unit)
         {
             _selectedUnit = unit;
+            unitStatsDisplay.DisplayUnit(unit.Unit);
             tileObjectManager.DestroyAll();
-
+            
             _accessibleTiles = GenerateAccessibleTiles(unit);
             ShowAccessibleTiles(_accessibleTiles);
         }
