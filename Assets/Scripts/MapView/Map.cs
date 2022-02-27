@@ -15,7 +15,7 @@ namespace FireEmblem.MapView
         private List<EnemyUnit> EnemyUnits { get; set; } = new List<EnemyUnit>();
 
         private BaseUnit _selectedUnit;
-        private List<AccessibleTile> _accessibleTiles;
+        private IEnumerable<AccessibleTile> _accessibleTiles;
 
         private void Awake()
         {
@@ -73,7 +73,7 @@ namespace FireEmblem.MapView
             Debug.Log($"AS: {unit.Unit.GetAttackSpeed()}");
         }
 
-        private void ShowAccessibleTiles(List<AccessibleTile> accessibleTiles)
+        private void ShowAccessibleTiles(IEnumerable<AccessibleTile> accessibleTiles)
         {
             foreach (var tile in accessibleTiles)
             {
@@ -87,7 +87,7 @@ namespace FireEmblem.MapView
                    mapGrid.GetTileAt(mapPosition).IsTraversable;
         }
 
-        private List<AccessibleTile> GenerateAccessibleTiles(BaseUnit unit)
+        private IEnumerable<AccessibleTile> GenerateAccessibleTiles(BaseUnit unit)
         {
             var startPosition = unit.Position;
             var maximumMoveDistance = unit.Unit.Stats.Movement;
@@ -95,7 +95,7 @@ namespace FireEmblem.MapView
             var maxAttackRange = unit.Unit.Weapon.Data.MaxRange;
 
             var workingTiles = new List<MapPosition> { startPosition };
-            var accessibleTiles = new List<AccessibleTile>();
+            var tileAccessibility = new Dictionary<MapPosition, TileAccessibility>();
 
             var spacesMoved = 0;
 
@@ -112,20 +112,12 @@ namespace FireEmblem.MapView
                         new MapPosition(tile.X, tile.Y - 1),
                     };
 
-                    foreach (var tileToCheck in tilesToCheck)
+                    foreach (var tileToCheck in tilesToCheck.Where(tileToCheck => CanMoveThrough(tileToCheck)
+                                 && !tileAccessibility.ContainsKey(tileToCheck)
+                                 && !tileToCheck.Equals(startPosition)))
                     {
-                        if (CanMoveThrough(tileToCheck)
-                            && !accessibleTiles.Any(t => t.Position.Equals(tileToCheck))
-                            && !newWorkingTiles.Any(t => t.Equals(tileToCheck))
-                            && !tileToCheck.Equals(startPosition))
-                        {
-                            accessibleTiles.Add(new AccessibleTile
-                            {
-                                Position = tileToCheck,
-                                Accessibility = TileAccessibility.CanMoveTo
-                            });
-                            newWorkingTiles.Add(tileToCheck);
-                        }
+                        tileAccessibility.Add(tileToCheck, TileAccessibility.CanMoveTo);
+                        newWorkingTiles.Add(tileToCheck);
                     }
                 }
 
@@ -133,12 +125,17 @@ namespace FireEmblem.MapView
                 spacesMoved++;
             }
 
-            return accessibleTiles;
+            return tileAccessibility.Select(pair => new AccessibleTile(pair.Key, pair.Value));
         }
     }
 
     public class AccessibleTile
     {
+        public AccessibleTile(MapPosition position, TileAccessibility tileAccessibility)
+        {
+            Position = position;
+            Accessibility = tileAccessibility;
+        }
         public MapPosition Position { get; set; }
         public TileAccessibility Accessibility { get; set; }
     }

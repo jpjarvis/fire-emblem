@@ -13,9 +13,17 @@ namespace FireEmblem.Model.Data
             Y = y;
         }
         
-        public bool Equals(MapPosition other)
+        public override bool Equals(object other)
         {
-            return X == other.X && Y == other.Y;
+            if (!(other is MapPosition otherMapPosition))
+                return false;
+            
+            return X == otherMapPosition.X && Y == otherMapPosition.Y;
+        }
+        
+        public override int GetHashCode()
+        {
+            return X ^ Y;
         }
 
         public static MapPosition FromVector(Vector3 vector) => new MapPosition(Mathf.FloorToInt(vector.x), Mathf.FloorToInt(vector.y));
