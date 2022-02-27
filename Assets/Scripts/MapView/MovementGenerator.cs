@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using FireEmblem.Model.Data;
+using Unity.VisualScripting;
+using UnityEditor.Rendering;
 
 namespace FireEmblem.MapView
 {
@@ -20,29 +23,22 @@ namespace FireEmblem.MapView
             var minAttackRange = unit.Unit.Weapon.Data.MinRange;
             var maxAttackRange = unit.Unit.Weapon.Data.MaxRange;
 
-            var workingTiles = new List<MapPosition> { startPosition };
-            var tileAccessibility = new Dictionary<MapPosition, TileAccessibility>();
+            var workingTiles = new HashSet<MapPosition> { startPosition };
+            var moveableTiles = new HashSet<MapPosition>();
 
             var spacesMoved = 0;
 
             while (spacesMoved < maximumMoveDistance && workingTiles.Any())
             {
-                var newWorkingTiles = new List<MapPosition>();
+                var newWorkingTiles = new HashSet<MapPosition>();
                 foreach (var tile in workingTiles)
                 {
-                    var tilesToCheck = new List<MapPosition>
-                    {
-                        new MapPosition(tile.X + 1, tile.Y),
-                        new MapPosition(tile.X - 1, tile.Y),
-                        new MapPosition(tile.X, tile.Y + 1),
-                        new MapPosition(tile.X, tile.Y - 1),
-                    };
+                    var tilesToCheck = TilesInRange(tile, 1, 1);
 
                     foreach (var tileToCheck in tilesToCheck.Where(tileToCheck => CanMoveThrough(tileToCheck, enemyUnits)
-                                 && !tileAccessibility.ContainsKey(tileToCheck)
                                  && !tileToCheck.Equals(startPosition)))
                     {
-                        tileAccessibility.Add(tileToCheck, TileAccessibility.CanMoveTo);
+                        moveableTiles.Add(tileToCheck);
                         newWorkingTiles.Add(tileToCheck);
                     }
                 }
@@ -51,7 +47,47 @@ namespace FireEmblem.MapView
                 spacesMoved++;
             }
 
-            return tileAccessibility.Select(pair => new AccessibleTile(pair.Key, pair.Value));
+            var attackableTiles = new HashSet<MapPosition>();
+            
+            foreach (var tile in moveableTiles.Concat(new [] {unit.Position}))
+            {
+                foreach (var attackTile in TilesInRange(tile, minAttackRange, maxAttackRange))
+                {
+                    if (!moveableTiles.Contains(attackTile) && !attackTile.Equals(startPosition))
+                    {
+                        attackableTiles.Add(attackTile);
+                    }
+                }
+            }
+
+            return moveableTiles.Select(t => new AccessibleTile(t, TileAccessibility.CanMoveTo))
+                .Concat(attackableTiles.Select(t => new AccessibleTile(t, TileAccessibility.CanAttack)));
+        }
+
+        private static IEnumerable<MapPosition> TilesInRange(MapPosition tile, int minRange, int maxRange)
+        {
+            var combinations = new List<(int, int)>();
+
+            for (var range = minRange; range <= maxRange; range++)
+            {
+                for (var i = 0; i <= range; i++)
+                {
+                    combinations.Add((i, range - i));
+                }
+            }
+
+            var tiles = new HashSet<MapPosition>();
+
+            combinations.ForEach(combination =>
+            {
+                var (x, y) = combination;
+                tiles.Add(new MapPosition(tile.X + x, tile.Y + y));
+                tiles.Add(new MapPosition(tile.X + x, tile.Y - y));
+                tiles.Add(new MapPosition(tile.X - x, tile.Y + y));
+                tiles.Add(new MapPosition(tile.X - x, tile.Y - y));
+            });
+
+            return tiles;
         }
 
         private bool CanMoveThrough(MapPosition mapPosition, IEnumerable<BaseUnit> enemyUnits)

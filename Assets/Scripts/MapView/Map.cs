@@ -55,32 +55,22 @@ namespace FireEmblem.MapView
             if (selectedPlayerUnit)
             {
                 SelectUnit(selectedPlayerUnit);
-                DisplayStats(selectedPlayerUnit);
             }
-        }
-
-        private static void DisplayStats(BaseUnit unit)
-        {
-            Debug.Log($"{unit.Unit.Name} wielding {unit.Unit.Weapon.Name}");
-            Debug.Log("STR: " + unit.Unit.Stats.Strength);
-            Debug.Log("MAG: " + unit.Unit.Stats.Magic);
-            Debug.Log("DEX: " + unit.Unit.Stats.Dexterity);
-            Debug.Log("LCK: " + unit.Unit.Stats.Luck);
-            Debug.Log("SPE: " + unit.Unit.Stats.Speed);
-            Debug.Log("DEF: " + unit.Unit.Stats.Defence);
-            Debug.Log("RES: " + unit.Unit.Stats.Resistance);
-
-            Debug.Log($"Attack: {unit.Unit.GetAttack()}");
-            Debug.Log($"Hit: {unit.Unit.GetHit()}");
-            Debug.Log($"Crit: {unit.Unit.GetCrit()}");
-            Debug.Log($"AS: {unit.Unit.GetAttackSpeed()}");
         }
 
         private void ShowAccessibleTiles(IEnumerable<AccessibleTile> accessibleTiles)
         {
             foreach (var tile in accessibleTiles)
             {
-                tileObjectManager.CreateMoveTile(tile.Position);
+                if (tile.Accessibility == TileAccessibility.CanMoveTo)
+                {
+                    tileObjectManager.CreateMoveTile(tile.Position);
+                }
+
+                if (tile.Accessibility == TileAccessibility.CanAttack)
+                {
+                    tileObjectManager.CreateAttackTile(tile.Position);
+                }
             }
         }
     }

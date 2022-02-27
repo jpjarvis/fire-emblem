@@ -9,11 +9,22 @@ namespace FireEmblem.MapView
         private readonly List<GameObject> _activeTileObjects = new List<GameObject>();
         
         [SerializeField] private GameObject moveTilePrefab;
+        [SerializeField] private GameObject attackTilePrefab;
         [SerializeField] private MapGrid grid;
 
         public void CreateMoveTile(MapPosition mapPosition)
         {
-            var tileObject = grid.InstantiateAtGridPosition(moveTilePrefab, mapPosition);
+            CreateTile(moveTilePrefab, mapPosition);
+        }
+
+        public void CreateAttackTile(MapPosition mapPosition)
+        {
+            CreateTile(attackTilePrefab, mapPosition);
+        }
+
+        private void CreateTile(GameObject prefab, MapPosition mapPosition)
+        {
+            var tileObject = grid.InstantiateAtGridPosition(prefab, mapPosition);
             _activeTileObjects.Add(tileObject);
         }
 

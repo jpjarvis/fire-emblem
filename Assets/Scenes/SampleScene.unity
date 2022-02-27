@@ -804,6 +804,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveTilePrefab: {fileID: 5108296133813379320, guid: 91a258cbe37d77e4aa13967b0f38254f, type: 3}
+  attackTilePrefab: {fileID: 6163631793883525100, guid: 55f73fa3e5d9dc3428f49e6ddfd59f65, type: 3}
   grid: {fileID: 387832529}
 --- !u!114 &387832525
 MonoBehaviour:
@@ -1214,8 +1215,8 @@ Tilemap:
   - first: {x: -1, y: 0, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 0
-      m_TileSpriteIndex: 0
+      m_TileIndex: 1
+      m_TileSpriteIndex: 1
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -1434,8 +1435,8 @@ Tilemap:
   - first: {x: -1, y: 1, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 0
-      m_TileSpriteIndex: 0
+      m_TileIndex: 1
+      m_TileSpriteIndex: 1
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -3313,14 +3314,14 @@ Tilemap:
       m_AllTileFlags: 0
   m_AnimatedTiles: {}
   m_TileAssetArray:
-  - m_RefCount: 159
+  - m_RefCount: 157
     m_Data: {fileID: 11400000, guid: 8aa3790abd241224ab0628fab8c9096b, type: 2}
-  - m_RefCount: 83
+  - m_RefCount: 85
     m_Data: {fileID: 11400000, guid: 8f00f8aca0d4fa64c8c07e11fe77864f, type: 2}
   m_TileSpriteArray:
-  - m_RefCount: 159
+  - m_RefCount: 157
     m_Data: {fileID: 1807125615787039003, guid: dfa84f47b6425cf4bb7b4dd9bd5a014c, type: 3}
-  - m_RefCount: 83
+  - m_RefCount: 85
     m_Data: {fileID: 349823833441268365, guid: dfa84f47b6425cf4bb7b4dd9bd5a014c, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 242
@@ -5500,7 +5501,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 555153131333641782, guid: f1abdc4e3c6360844bab63c25ad7bbda, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.5
+      value: -1.5
       objectReference: {fileID: 0}
     - target: {fileID: 555153131333641782, guid: f1abdc4e3c6360844bab63c25ad7bbda, type: 3}
       propertyPath: m_LocalPosition.y

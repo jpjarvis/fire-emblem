@@ -24,4 +24,4 @@ MonoBehaviour:
     resistance: 2
     movement: 5
   inventory:
-  - {fileID: 11400000, guid: ae8cec75e786b0f4397babd307bd8139, type: 2}
+  - {fileID: 11400000, guid: 17dd6e8675bc0ab4e88b73d9adf1535a, type: 2}
