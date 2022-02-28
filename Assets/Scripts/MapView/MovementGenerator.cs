@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using FireEmblem.Model.Data;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 
 namespace FireEmblem.MapView
 {
