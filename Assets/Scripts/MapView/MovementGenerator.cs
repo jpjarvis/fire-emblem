@@ -8,14 +8,14 @@ using UnityEditor.Rendering;
 namespace FireEmblem.MapView
 {
     public class MovementGenerator
-    { 
+    {
         private readonly MapGrid _mapGrid;
 
         public MovementGenerator(MapGrid mapGrid)
         {
             _mapGrid = mapGrid;
         }
-        
+
         public IEnumerable<AccessibleTile> GenerateAccessibleTiles(BaseUnit unit, IEnumerable<BaseUnit> enemyUnits)
         {
             var startPosition = unit.Position;
@@ -31,16 +31,12 @@ namespace FireEmblem.MapView
             while (spacesMoved < maximumMoveDistance && workingTiles.Any())
             {
                 var newWorkingTiles = new HashSet<MapPosition>();
-                foreach (var tile in workingTiles)
+                foreach (var tileToCheck in workingTiles.SelectMany(tile => TilesInRange(tile, 1, 1)
+                             .Where(tileToCheck =>
+                                 CanMoveThrough(tileToCheck, enemyUnits) && !tileToCheck.Equals(startPosition))))
                 {
-                    var tilesToCheck = TilesInRange(tile, 1, 1);
-
-                    foreach (var tileToCheck in tilesToCheck.Where(tileToCheck => CanMoveThrough(tileToCheck, enemyUnits)
-                                 && !tileToCheck.Equals(startPosition)))
-                    {
-                        moveableTiles.Add(tileToCheck);
-                        newWorkingTiles.Add(tileToCheck);
-                    }
+                    moveableTiles.Add(tileToCheck);
+                    newWorkingTiles.Add(tileToCheck);
                 }
 
                 workingTiles = newWorkingTiles;
@@ -48,15 +44,13 @@ namespace FireEmblem.MapView
             }
 
             var attackableTiles = new HashSet<MapPosition>();
-            
-            foreach (var tile in moveableTiles.Concat(new [] {unit.Position}))
+
+            foreach (var attackTile in moveableTiles.Concat(new[] { unit.Position })
+                         .SelectMany(tile => TilesInRange(tile, minAttackRange, maxAttackRange)))
             {
-                foreach (var attackTile in TilesInRange(tile, minAttackRange, maxAttackRange))
+                if (!moveableTiles.Contains(attackTile) && !attackTile.Equals(startPosition))
                 {
-                    if (!moveableTiles.Contains(attackTile) && !attackTile.Equals(startPosition))
-                    {
-                        attackableTiles.Add(attackTile);
-                    }
+                    attackableTiles.Add(attackTile);
                 }
             }
 
@@ -76,18 +70,14 @@ namespace FireEmblem.MapView
                 }
             }
 
-            var tiles = new HashSet<MapPosition>();
-
-            combinations.ForEach(combination =>
+            foreach (var combination in combinations)
             {
                 var (x, y) = combination;
-                tiles.Add(new MapPosition(tile.X + x, tile.Y + y));
-                tiles.Add(new MapPosition(tile.X + x, tile.Y - y));
-                tiles.Add(new MapPosition(tile.X - x, tile.Y + y));
-                tiles.Add(new MapPosition(tile.X - x, tile.Y - y));
-            });
-
-            return tiles;
+                yield return new MapPosition(tile.X + x, tile.Y + y);
+                yield return new MapPosition(tile.X + x, tile.Y - y);
+                yield return new MapPosition(tile.X - x, tile.Y + y);
+                yield return new MapPosition(tile.X - x, tile.Y - y);
+            }
         }
 
         private bool CanMoveThrough(MapPosition mapPosition, IEnumerable<BaseUnit> enemyUnits)
@@ -96,7 +86,7 @@ namespace FireEmblem.MapView
                    _mapGrid.GetTileAt(mapPosition).IsTraversable;
         }
     }
-    
+
     public class AccessibleTile
     {
         public AccessibleTile(MapPosition position, TileAccessibility tileAccessibility)
@@ -104,6 +94,7 @@ namespace FireEmblem.MapView
             Position = position;
             Accessibility = tileAccessibility;
         }
+
         public MapPosition Position { get; }
         public TileAccessibility Accessibility { get; }
     }
