@@ -15,7 +15,7 @@ namespace FireEmblem.MapView
         private List<EnemyUnit> EnemyUnits { get; set; } = new List<EnemyUnit>();
 
         private BaseUnit _selectedUnit;
-        private IEnumerable<AccessibleTile> _accessibleTiles;
+        private Dictionary<MapPosition, AccessibleTile> _accessibleTiles;
         private MovementGenerator _movementGenerator;
 
         private void Awake()
@@ -40,7 +40,7 @@ namespace FireEmblem.MapView
         {
             if (_selectedUnit != null)
             {
-                var tile = _accessibleTiles.FirstOrDefault(t => t.Position.Equals(position));
+                var tile = _accessibleTiles[position];
                 if (tile is { Accessibility: TileAccessibility.CanMoveTo })
                 {
                     mapGrid.MoveObjectToGridPosition(_selectedUnit.gameObject, position);
@@ -58,18 +58,20 @@ namespace FireEmblem.MapView
             }
         }
 
-        private void ShowAccessibleTiles(IEnumerable<AccessibleTile> accessibleTiles)
+        private void ShowAccessibleTiles(Dictionary<MapPosition, AccessibleTile> accessibleTiles)
         {
-            foreach (var tile in accessibleTiles)
+            foreach (var position in accessibleTiles.Keys)
             {
-                if (tile.Accessibility == TileAccessibility.CanMoveTo)
+                var tile = accessibleTiles[position];
+                
+                switch (tile.Accessibility)
                 {
-                    tileObjectManager.CreateMoveTile(tile.Position);
-                }
-
-                if (tile.Accessibility == TileAccessibility.CanAttack)
-                {
-                    tileObjectManager.CreateAttackTile(tile.Position);
+                    case TileAccessibility.CanMoveTo:
+                        tileObjectManager.CreateMoveTile(position);
+                        break;
+                    case TileAccessibility.CanAttack:
+                        tileObjectManager.CreateAttackTile(position);
+                        break;
                 }
             }
         }

@@ -13,7 +13,7 @@ namespace FireEmblem.MapView
             _mapGrid = mapGrid;
         }
 
-        public IEnumerable<AccessibleTile> GenerateAccessibleTiles(BaseUnit unit, IEnumerable<BaseUnit> enemyUnits)
+        public Dictionary<MapPosition, AccessibleTile> GenerateAccessibleTiles(BaseUnit unit, IEnumerable<BaseUnit> enemyUnits)
         {
             var startPosition = unit.Position;
             var maximumMoveDistance = unit.Unit.Stats.Movement;
@@ -51,8 +51,10 @@ namespace FireEmblem.MapView
                 }
             }
 
-            return moveableTiles.Select(t => new AccessibleTile(t, TileAccessibility.CanMoveTo))
-                .Concat(attackableTiles.Select(t => new AccessibleTile(t, TileAccessibility.CanAttack)));
+            var moveableTilesDictionary = moveableTiles.ToDictionary(t => t, t => new AccessibleTile(TileAccessibility.CanMoveTo));
+            var attackableTilesDictionary = attackableTiles.ToDictionary(t => t, t=> new AccessibleTile(TileAccessibility.CanAttack));
+
+            return moveableTilesDictionary.Concat(attackableTilesDictionary).ToDictionary(kv => kv.Key, kv => kv.Value);
         }
 
         private static IEnumerable<MapPosition> TilesInRange(MapPosition tile, int minRange, int maxRange)
@@ -86,13 +88,11 @@ namespace FireEmblem.MapView
 
     public class AccessibleTile
     {
-        public AccessibleTile(MapPosition position, TileAccessibility tileAccessibility)
+        public AccessibleTile(TileAccessibility tileAccessibility)
         {
-            Position = position;
             Accessibility = tileAccessibility;
         }
-
-        public MapPosition Position { get; }
+        
         public TileAccessibility Accessibility { get; }
     }
 
