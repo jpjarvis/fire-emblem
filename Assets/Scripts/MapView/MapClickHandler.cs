@@ -7,13 +7,23 @@ namespace FireEmblem.MapView
     {
         [SerializeField] private Map map;
 
+        private MapPosition _tileUnderMouse;
+        
         private void Update()
         {
+            var position = MapPosition.FromVector(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+
+            if (!position.Equals(_tileUnderMouse))
+            {
+                _tileUnderMouse = position;
+                map.HighlightTile(position);
+            }
+            
+            map.HighlightTile(position);
+            
             if (Input.GetMouseButtonDown(0))
             {
-                var position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Debug.Log(position);
-                map.SelectCell(MapPosition.FromVector(position));
+                map.SelectCell(position);
             }
         }
     }

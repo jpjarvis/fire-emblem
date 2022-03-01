@@ -40,8 +40,8 @@ namespace FireEmblem.MapView
         {
             if (_selectedUnit != null)
             {
-                var tile = _accessibleTiles[position];
-                if (tile is { Accessibility: TileAccessibility.CanMoveTo })
+                var tileIsAccessible = _accessibleTiles.TryGetValue(position, out var tile);
+                if (tileIsAccessible && tile is { Accessibility: TileAccessibility.CanMoveTo })
                 {
                     mapGrid.MoveObjectToGridPosition(_selectedUnit.gameObject, position);
                 }
@@ -73,6 +73,36 @@ namespace FireEmblem.MapView
                         tileObjectManager.CreateAttackTile(position);
                         break;
                 }
+            }
+        }
+
+        public void HighlightTile(MapPosition tile)
+        {
+            if (_selectedUnit != null)
+            {
+                tileObjectManager.ClearMovePath();
+                if (_accessibleTiles.ContainsKey(tile))
+                {
+                    ShowPathToTile(tile);
+                }
+            }
+        }
+        
+        public void ShowPathToTile(MapPosition targetPosition)
+        {
+            var currentPosition = targetPosition;
+
+            var tilesInPath = new List<MapPosition>();
+            
+            while (currentPosition != null && !currentPosition.Equals(_selectedUnit.Position))
+            {
+                tilesInPath.Add(currentPosition);
+                currentPosition = _accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
+            }
+
+            foreach (var tile in tilesInPath)
+            {
+                tileObjectManager.CreateMovePathTile(tile);
             }
         }
     }

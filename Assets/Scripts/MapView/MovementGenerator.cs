@@ -22,18 +22,26 @@ namespace FireEmblem.MapView
 
             var workingTiles = new HashSet<MapPosition> { startPosition };
             var moveableTiles = new HashSet<MapPosition>();
+            var movementSourceTiles = new Dictionary<MapPosition, MapPosition>();
 
             var spacesMoved = 0;
 
             while (spacesMoved < maximumMoveDistance && workingTiles.Any())
             {
                 var newWorkingTiles = new HashSet<MapPosition>();
-                foreach (var tileToCheck in workingTiles.SelectMany(tile => TilesInRange(tile, 1, 1)
-                             .Where(tileToCheck =>
-                                 CanMoveThrough(tileToCheck, enemyUnits) && !tileToCheck.Equals(startPosition))))
+                foreach (var sourceTile in workingTiles)
                 {
-                    moveableTiles.Add(tileToCheck);
-                    newWorkingTiles.Add(tileToCheck);
+                    foreach (var tile in TilesInRange(sourceTile, 1, 1).Where(tileToCheck =>
+                                 CanMoveThrough(tileToCheck, enemyUnits) && !tileToCheck.Equals(startPosition)))
+                    {
+                        moveableTiles.Add(tile);
+                        newWorkingTiles.Add(tile);
+                        if (!movementSourceTiles.ContainsKey(tile))
+                        {
+                            movementSourceTiles.Add(tile, sourceTile);
+                        }
+                    }
+                    
                 }
 
                 workingTiles = newWorkingTiles;
@@ -51,8 +59,8 @@ namespace FireEmblem.MapView
                 }
             }
 
-            var moveableTilesDictionary = moveableTiles.ToDictionary(t => t, t => new AccessibleTile(TileAccessibility.CanMoveTo));
-            var attackableTilesDictionary = attackableTiles.ToDictionary(t => t, t=> new AccessibleTile(TileAccessibility.CanAttack));
+            var moveableTilesDictionary = moveableTiles.ToDictionary(t => t, t => new AccessibleTile(TileAccessibility.CanMoveTo, new []{ movementSourceTiles[t] }));
+            var attackableTilesDictionary = attackableTiles.ToDictionary(t => t, t=> new AccessibleTile(TileAccessibility.CanAttack, new MapPosition[]{}));
 
             return moveableTilesDictionary.Concat(attackableTilesDictionary).ToDictionary(kv => kv.Key, kv => kv.Value);
         }
@@ -88,12 +96,15 @@ namespace FireEmblem.MapView
 
     public class AccessibleTile
     {
-        public AccessibleTile(TileAccessibility tileAccessibility)
+        public AccessibleTile(TileAccessibility tileAccessibility, IEnumerable<MapPosition> sourceTiles)
         {
             Accessibility = tileAccessibility;
+            SourceTiles = sourceTiles;
         }
         
         public TileAccessibility Accessibility { get; }
+        
+        public IEnumerable<MapPosition> SourceTiles { get; }
     }
 
     public enum TileAccessibility

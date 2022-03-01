@@ -805,6 +805,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveTilePrefab: {fileID: 5108296133813379320, guid: 91a258cbe37d77e4aa13967b0f38254f, type: 3}
   attackTilePrefab: {fileID: 6163631793883525100, guid: 55f73fa3e5d9dc3428f49e6ddfd59f65, type: 3}
+  movePathTilePrefab: {fileID: 8069015467067414492, guid: 68c6c04e2854ac14ba5cfdbc784a864b, type: 3}
   grid: {fileID: 387832529}
 --- !u!114 &387832525
 MonoBehaviour:
