@@ -7,14 +7,16 @@ namespace FireEmblem.Model.Combat
 {
     public class Unit
     {
+        private readonly UnitData _unitData;
         private int _damageTaken;
         public int MaxHp => Stats.Hp;
         public int CurrentHp => Math.Max(MaxHp - _damageTaken, 0);
 
-        public List<IItem> Inventory { get; } = new List<IItem>();
+        public IEnumerable<IItem> Inventory { get; private set; } = new List<IItem>();
+        public string Name => _unitData.Name;
+        public IStatBlock Stats => _unitData.Stats;
+        public Weapon Weapon { get; private set; }
         
-        private readonly UnitData _unitData;
-
         private Unit(UnitData unitData)
         {
             _unitData = unitData;
@@ -23,23 +25,12 @@ namespace FireEmblem.Model.Combat
         public static Unit Create(UnitData unitData)
         {
             var unit = new Unit(unitData);
-
-            foreach (var itemData in unitData.Inventory)
-            {
-                unit.Inventory.Add(Weapon.Create(itemData));
-            }
-
-            if (unit.Inventory.Any() && unit.Inventory[0] is Weapon weapon)
-            {
-                unit.Weapon = weapon;
-            }
+            
+            unit.Inventory = unitData.Inventory.Select(Weapon.Create);
+            unit.Weapon = unit.Inventory.FirstOrDefault(x => x is Weapon) as Weapon;
             
             return unit;
         }
-
-        public string Name => _unitData.Name;
-        public IStatBlock Stats => _unitData.Stats;
-        public Weapon Weapon { get; set; }
 
         public int GetAttack()
         {
