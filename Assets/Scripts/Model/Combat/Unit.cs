@@ -8,90 +8,67 @@ namespace FireEmblem.Model.Combat
     public class Unit
     {
         private readonly UnitData _unitData;
-        private int _damageTaken;
         public int MaxHp => Stats.Hp;
-        public int CurrentHp => Math.Max(MaxHp - _damageTaken, 0);
+        public int Hp { get; }
 
-        public IEnumerable<IItem> Inventory { get; private set; } = new List<IItem>();
+        public IEnumerable<IItem> Inventory { get; }
         public string Name => _unitData.Name;
         public IStatBlock Stats => _unitData.Stats;
-        public Weapon Weapon { get; private set; }
+        public Weapon Weapon { get; }
         
-        private Unit(UnitData unitData)
+        public int Attack => Weapon.Data.IsMagic ? Stats.Magic : Stats.Strength + Weapon.Data.Might;
+
+        public int Protection => Stats.Defence;
+
+        public int Resilience => Stats.Resistance;
+
+        public int AttackSpeed => Stats.Speed - Math.Max(Weapon.Data.Weight - (Stats.Strength / 5), 0);
+
+        public int Avoid => AttackSpeed;
+
+        public int Crit => Weapon.Data.Crit + Stats.Dexterity + Stats.Luck / 2;
+
+        public int Hit 
+        {
+            get
+            {
+                if (Weapon.Data.IsMagic)
+                {
+                    return Weapon.Data.Hit + Stats.Dexterity + Stats.Luck / 2;
+                }
+
+                return Weapon.Data.Hit + Stats.Dexterity;
+            }
+        }
+        
+        public int CritAvoid => Stats.Luck;
+        
+        private Unit(UnitData unitData, IEnumerable<IItem> inventory, int hp)
         {
             _unitData = unitData;
+            Inventory = inventory;
+            Weapon = Inventory.FirstOrDefault(x => x is Weapon) as Weapon;
+            Hp = hp;
         }
 
         public static Unit Create(UnitData unitData)
         {
-            var unit = new Unit(unitData);
-            
-            unit.Inventory = unitData.Inventory.Select(Weapon.Create);
-            unit.Weapon = unit.Inventory.FirstOrDefault(x => x is Weapon) as Weapon;
-            
-            return unit;
-        }
-
-        public int GetAttack()
-        {
-            var attackingStat = Weapon.Data.IsMagic ? Stats.Magic : Stats.Strength;
-            return attackingStat + Weapon.Data.Might;
-        }
-
-        public int GetProtection()
-        {
-            return Stats.Defence;
-        }
-
-        public int GetResilience()
-        {
-            return Stats.Resistance;
-        }
-
-        public int GetAttackSpeed()
-        {
-            var weightPenalty = Weapon.Data.Weight - (Stats.Strength / 5);
-            return Stats.Speed - Math.Max(weightPenalty, 0);
-        }
-
-        public int GetAvoid()
-        {
-            return GetAttackSpeed();
-        }
-
-        public int GetCrit()
-        {
-            return Weapon.Data.Crit + Stats.Dexterity + Stats.Luck / 2;
-        }
-
-        public int GetHit()
-        {
-            if (Weapon.Data.IsMagic)
-            {
-                return Weapon.Data.Hit + Stats.Dexterity + Stats.Luck / 2;
-            }
-
-            return Weapon.Data.Hit + Stats.Dexterity;
-        }
-        
-        public int GetCritAvoid()
-        {
-            return Stats.Luck;
+            return new Unit(unitData, unitData.Inventory.Select(Weapon.Create), unitData.Stats.Hp);
         }
 
         public bool CanFollowUp(Unit other)
         {
-            return GetAttackSpeed() >= other.GetAttackSpeed() + CombatConstants.DoubleAttackSpeedDifference;
+            return AttackSpeed >= other.AttackSpeed + CombatConstants.DoubleAttackSpeedDifference;
         }
 
-        public void TakeDamage(int damage)
+        public Unit TakeDamage(int damage)
         {
-            _damageTaken += damage;
+            return new Unit(_unitData, Inventory, Math.Max(Hp - damage, 0));
         }
 
         public bool IsDead()
         {
-            return CurrentHp == 0;
+            return Hp == 0;
         }
     }
 }

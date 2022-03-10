@@ -33,13 +33,13 @@ namespace FireEmblem.MapView.UI
             TrySetText(unitNameText, unit.Name);
             TrySetText(weaponNameText, unit.Weapon.Name);
             
-            TrySetText(attackText, unit.GetAttack());
-            TrySetText(attackSpeedText, unit.GetAttackSpeed());
-            TrySetText(hitText, unit.GetHit());
-            TrySetText(avoidText, unit.GetAvoid());
-            TrySetText(critText, unit.GetCrit());
+            TrySetText(attackText, unit.Attack);
+            TrySetText(attackSpeedText, unit.AttackSpeed);
+            TrySetText(hitText, unit.Hit);
+            TrySetText(avoidText, unit.Avoid);
+            TrySetText(critText, unit.Crit);
             
-            TrySetText(currentHpText, unit.CurrentHp);
+            TrySetText(currentHpText, unit.Hp);
             TrySetText(maxHpText, unit.MaxHp);
             
             TrySetText(strengthText, unit.Stats.Strength);

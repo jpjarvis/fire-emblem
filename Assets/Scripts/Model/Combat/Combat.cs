@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Common;
@@ -7,125 +6,80 @@ namespace FireEmblem.Model.Combat
 {
     public class Combat
     {
-        public class CombatForecastAttack
+        private IEnumerable<(bool, CombatForecastAttack)> GetAttacksInOrder(CombatForecast combatForecast)
         {
-            public Unit Attacker { get; set; }
-            public Unit Target { get; set; }
-            public int Damage { get; set; }
-            public int HitChance { get; set; }
-            public int CritChance { get; set; }
-        }
+            var round = 0;
 
-        private Unit _attacker;
-        private Unit _defender;
-
-        private int _distance;
-
-        public List<CombatForecastAttack> CombatForecast { get; }
-        
-        public Combat()
-        {
-            CombatForecast = new List<CombatForecastAttack>();
-        }
-
-        public class AttackResult
-        {
-            public Unit Attacker { get; set; }
-            public Unit Target { get; set; }
-            public int Damage { get; set; }
-            public bool IsHit { get; set; }
-            public bool IsCrit { get; set; }
-            public bool IsFatal { get; set; }
-        }
-
-        public IEnumerable<AttackResult> Resolve()
-        {
-            var attacks = new List<AttackResult>();
-            var attackQueue = new Queue<CombatForecastAttack>(CombatForecast);
-
-            while (attackQueue.Count > 0 && !attacks.Any(x => x.IsFatal))
+            while (round < combatForecast.Attacker.NumberOfAttacks || round < combatForecast.Defender.NumberOfAttacks)
             {
-                var attack = attackQueue.Dequeue();
-                var attackResult = new AttackResult
+                if (round < combatForecast.Attacker.NumberOfAttacks)
                 {
-                    Attacker = attack.Attacker,
-                    Target = attack.Target,
-                    IsHit = Rng.Instance.PerformCheck(attack.HitChance),
-                    IsCrit = Rng.Instance.PerformCheck(attack.CritChance),
-                    Damage = attack.Damage
-                };
-                
-                if (attackResult.IsCrit)
-                {
-                    attackResult.Damage *= CombatConstants.CritDamageMultiplier;
+                    yield return (true, combatForecast.Attacker.Attack);
                 }
 
-                if (attackResult.IsHit)
+                if (round < combatForecast.Defender.NumberOfAttacks)
                 {
-                    attackResult.Target.TakeDamage(attackResult.Damage);
-                    if (attackResult.Target.IsDead())
+                    yield return (false, combatForecast.Defender.Attack);
+                }
+
+                round++;
+            }
+        }
+        
+        public CombatResult ResolveCombat(CombatForecast combatForecast)
+        {
+            var attacks = new List<AttackResult>();
+            var forecastedAttacks = GetAttacksInOrder(combatForecast);
+            using var enumerator = forecastedAttacks.GetEnumerator();
+
+            var attacker = combatForecast.Attacker.Unit;
+            var defender = combatForecast.Defender.Unit;
+            
+            while (!attacks.Any(x => x.IsFatal) && enumerator.MoveNext())
+            {
+                var (attackerIsAttacker, attack) = enumerator.Current;
+
+                var isHit = Rng.Instance.PerformCheck(attack.HitChance);
+                var isCrit = Rng.Instance.PerformCheck(attack.CritChance);
+                var damage = attack.Damage;
+                var isFatal = false;
+                
+                if (isCrit)
+                {
+                    damage *= CombatConstants.CritDamageMultiplier;
+                }
+
+                if (isHit)
+                {
+                    if (attackerIsAttacker)
                     {
-                        attackResult.IsFatal = true;
+                        attacker = attacker.TakeDamage(damage);
+                        if (attacker.IsDead())
+                        {
+                            isFatal = true;
+                        }
+                    }
+                    else
+                    {
+                        defender = defender.TakeDamage(damage);
+                        if (defender.IsDead())
+                        {
+                            isFatal = true;
+                        }
                     }
                 }
                 
-                attacks.Add(attackResult);
+                attacks.Add(new AttackResult(
+                    attacker: attack.Attacker,
+                    target: attack.Target,
+                    isHit: isHit,
+                    isCrit: isCrit, 
+                    damage: damage,
+                    isFatal: isFatal
+                ));
             }
             
-            return attacks;
-        }
-
-        private static CombatForecastAttack GenerateCombatForecastAttack(Unit attacker, Unit target)
-        {
-            var defendingStat = attacker.Weapon.Data.IsMagic ? target.GetProtection() : target.GetResilience();
-            
-            return new CombatForecastAttack
-            {
-                Attacker = attacker,
-                Target = target,
-                Damage = Math.Max(attacker.GetAttack() - defendingStat, 0),
-                HitChance = Utils.Clamp(attacker.GetHit() - target.GetAvoid(), 0, 100),
-                CritChance = Utils.Clamp(attacker.GetCrit() - target.GetCritAvoid(), 0, 100),
-            };
-        }
-        
-        private void GenerateCombatForecast()
-        {
-            CombatForecast.Clear();
-            
-            // TODO Apply pre-combat skills
-            
-            var attackerCanAttack = _attacker.Weapon.Data.IsInRange(_distance);
-            var defenderCanAttack = _defender.Weapon.Data.IsInRange(_distance);
-
-            if (attackerCanAttack)
-            {
-                CombatForecast.Add(GenerateCombatForecastAttack(_attacker, _defender));
-            }
-            
-            if (defenderCanAttack)
-            {
-                CombatForecast.Add(GenerateCombatForecastAttack(_defender, _attacker));
-            }
-
-            if (attackerCanAttack && _attacker.CanFollowUp(_defender))
-            {
-                CombatForecast.Add(GenerateCombatForecastAttack(_attacker, _defender));
-            }
-
-            if (defenderCanAttack && _defender.CanFollowUp(_attacker))
-            {
-                CombatForecast.Add(GenerateCombatForecastAttack(_defender, _attacker));
-            }
-            
-            // TODO Apply attack order skills
-        }
-        
-        public static Combat Create(Unit attacker, Unit defender, int distance)
-        {
-            var combat = new Combat {_attacker = attacker, _defender = defender, _distance = distance};
-            combat.GenerateCombatForecast();
-            return combat;
+            return new CombatResult(attacker, defender, attacks);
         }
     }
 }
