@@ -53,16 +53,16 @@ namespace FireEmblem.Domain.Combat
                 {
                     if (attackerIsAttacker)
                     {
-                        attacker = attacker.TakeDamage(damage);
-                        if (attacker.IsDead())
+                        defender = defender.TakeDamage(damage);
+                        if (defender.IsDead())
                         {
                             isFatal = true;
                         }
                     }
                     else
                     {
-                        defender = defender.TakeDamage(damage);
-                        if (defender.IsDead())
+                        attacker = attacker.TakeDamage(damage);
+                        if (attacker.IsDead())
                         {
                             isFatal = true;
                         }
