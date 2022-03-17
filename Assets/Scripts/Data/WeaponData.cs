@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using FireEmblem.Domain.Data;
+using UnityEngine;
 
-namespace FireEmblem.Model.Data
+namespace FireEmblem.Data
 {
     [CreateAssetMenu(fileName = "NewWeapon", menuName = "Fire Emblem/Weapon", order = 1)]
-    public class WeaponData : ScriptableObject
+    public class WeaponData : ScriptableObject, IWeaponData
     {
         [SerializeField] private string name;
         [SerializeField] private int might;
@@ -29,10 +30,5 @@ namespace FireEmblem.Model.Data
         public int MaxRange => maxRange;
 
         public bool IsMagic => isMagic;
-
-        public bool IsInRange(int range)
-        {
-            return range >= MinRange && range <= MaxRange;
-        }
     }
 }

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace FireEmblem.Model.Combat
+namespace FireEmblem.Domain.Combat
 {
     public class CombatForecastParticipant
     {

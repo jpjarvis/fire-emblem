@@ -1,7 +1,7 @@
 using System;
 using FireEmblem.Common;
 
-namespace FireEmblem.Model.Combat
+namespace FireEmblem.Domain.Combat
 {
     public class CombatForecastAttack
     {

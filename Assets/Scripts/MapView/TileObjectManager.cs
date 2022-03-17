@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using FireEmblem.Model.Data;
+using FireEmblem.Domain.Data;
 using UnityEngine;
 
 namespace FireEmblem.MapView

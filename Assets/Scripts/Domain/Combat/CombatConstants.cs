@@ -1,4 +1,4 @@
-﻿namespace FireEmblem.Model.Combat
+﻿namespace FireEmblem.Domain.Combat
 {
     public static class CombatConstants
     {

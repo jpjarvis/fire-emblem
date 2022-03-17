@@ -1,5 +1,6 @@
-using FireEmblem.Model.Combat;
-using FireEmblem.Model.Data;
+using FireEmblem.Data;
+using FireEmblem.Domain.Combat;
+using FireEmblem.Domain.Data;
 using UnityEngine;
 
 namespace FireEmblem.MapView

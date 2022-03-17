@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using FireEmblem.Model.Data;
+using FireEmblem.Domain.Data;
 
 namespace FireEmblem.MapView
 {

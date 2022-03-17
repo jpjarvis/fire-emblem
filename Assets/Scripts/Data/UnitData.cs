@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using FireEmblem.Domain.Data;
 using UnityEngine;
 
-namespace FireEmblem.Model.Data
+namespace FireEmblem.Data
 {
     [CreateAssetMenu(fileName = "NewUnit", menuName = "Fire Emblem/Unit", order = 1)]
-    public class UnitData : ScriptableObject
+    public class UnitData : ScriptableObject, IUnitData
     {
         [SerializeField] private string name;
         [SerializeField] private StatBlock stats;
         [SerializeField] private List<WeaponData> inventory;
         
         public string Name => name;
-        public StatBlock Stats => stats;
+        public IStatBlock Stats => stats;
 
-        public List<WeaponData> Inventory => inventory;
+        public IEnumerable<IWeaponData> Inventory => inventory;
     }
 }

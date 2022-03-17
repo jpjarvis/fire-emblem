@@ -1,4 +1,6 @@
-namespace FireEmblem.Model.Combat
+using FireEmblem.Domain.Data;
+
+namespace FireEmblem.Domain.Combat
 {
     public class CombatForecast
     {

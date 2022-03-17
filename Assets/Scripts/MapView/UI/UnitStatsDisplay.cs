@@ -1,4 +1,4 @@
-using FireEmblem.Model.Combat;
+using FireEmblem.Domain.Combat;
 using TMPro;
 using UnityEngine;
 

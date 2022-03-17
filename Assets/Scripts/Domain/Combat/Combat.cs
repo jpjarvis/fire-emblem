@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Common;
 
-namespace FireEmblem.Model.Combat
+namespace FireEmblem.Domain.Combat
 {
     public class Combat
     {

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FireEmblem.Model.Data
+namespace FireEmblem.Domain.Data
 {
     public class MapPosition
     {

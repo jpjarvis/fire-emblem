@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FireEmblem.Model.Data;
+using FireEmblem.Domain.Data;
 
-namespace FireEmblem.Model.Combat
+namespace FireEmblem.Domain.Combat
 {
     public class Unit
     {
-        private readonly UnitData _unitData;
+        private readonly IUnitData _unitData;
         public int MaxHp => Stats.Hp;
         public int Hp { get; }
 
@@ -43,7 +43,7 @@ namespace FireEmblem.Model.Combat
         
         public int CritAvoid => Stats.Luck;
         
-        private Unit(UnitData unitData, IEnumerable<IItem> inventory, int hp)
+        private Unit(IUnitData unitData, IEnumerable<IItem> inventory, int hp)
         {
             _unitData = unitData;
             Inventory = inventory;
@@ -51,7 +51,7 @@ namespace FireEmblem.Model.Combat
             Hp = hp;
         }
 
-        public static Unit Create(UnitData unitData)
+        public static Unit Create(IUnitData unitData)
         {
             return new Unit(unitData, unitData.Inventory.Select(Weapon.Create), unitData.Stats.Hp);
         }

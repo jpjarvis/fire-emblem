@@ -1,7 +1,8 @@
 using System;
+using FireEmblem.Domain.Data;
 using UnityEngine;
 
-namespace FireEmblem.Model.Data
+namespace FireEmblem.Data
 {
     [Serializable]
     public class StatBlock : IStatBlock

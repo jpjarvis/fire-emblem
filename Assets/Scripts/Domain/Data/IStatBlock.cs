@@ -1,4 +1,4 @@
-﻿namespace FireEmblem.Model.Data
+﻿namespace FireEmblem.Domain.Data
 {
     public interface IStatBlock
     {
