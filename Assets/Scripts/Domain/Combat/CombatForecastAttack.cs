@@ -1,5 +1,4 @@
 using System;
-using FireEmblem.Common;
 
 namespace FireEmblem.Domain.Combat
 {

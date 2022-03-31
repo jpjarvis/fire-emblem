@@ -1,4 +1,4 @@
-﻿namespace FireEmblem.Common
+﻿namespace FireEmblem.Domain
 {
     public abstract class Utils
     {

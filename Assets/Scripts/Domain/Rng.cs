@@ -1,6 +1,6 @@
 using System;
 
-namespace FireEmblem.Common
+namespace FireEmblem.Domain
 {
     public class Rng
     {
