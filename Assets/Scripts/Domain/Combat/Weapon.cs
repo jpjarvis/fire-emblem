@@ -8,8 +8,6 @@ namespace FireEmblem.Domain.Combat
 
         public IWeaponData Data { get; }
 
-        public Durability Durability { get; }
-
         private Weapon(IWeaponData weaponData)
         {
             Data = weaponData;
