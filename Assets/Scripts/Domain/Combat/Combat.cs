@@ -5,7 +5,7 @@ namespace FireEmblem.Domain.Combat
 {
     public class Combat
     {
-        private IEnumerable<(bool, CombatForecastAttack)> GetAttacksInOrder(CombatForecast combatForecast)
+        private static IEnumerable<(bool, CombatForecastAttack)> GetAttacksInOrder(CombatForecast combatForecast)
         {
             var round = 0;
 
@@ -25,7 +25,7 @@ namespace FireEmblem.Domain.Combat
             }
         }
         
-        public CombatResult ResolveCombat(CombatForecast combatForecast)
+        public static CombatResult ResolveCombat(CombatForecast combatForecast)
         {
             var attacks = new List<AttackResult>();
             var forecastedAttacks = GetAttacksInOrder(combatForecast);
@@ -69,8 +69,7 @@ namespace FireEmblem.Domain.Combat
                 }
                 
                 attacks.Add(new AttackResult(
-                    attacker: attack.Attacker,
-                    target: attack.Target,
+                    isFromAttacker: attackerIsAttacker,
                     isHit: isHit,
                     isCrit: isCrit, 
                     damage: damage,

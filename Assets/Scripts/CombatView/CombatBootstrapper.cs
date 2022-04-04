@@ -9,6 +9,8 @@ namespace FireEmblem.CombatView
         [SerializeField] private UnitData attackerData;
         [SerializeField] private UnitData defenderData;
 
+        [SerializeField] private CombatAnimator combatAnimator;
+        
         [SerializeField] private CombatParticipantDisplay attackerDisplay;
         [SerializeField] private CombatParticipantDisplay defenderDisplay;
         
@@ -21,6 +23,10 @@ namespace FireEmblem.CombatView
 
             attackerDisplay.Display(combatForecast.Attacker);
             defenderDisplay.Display(combatForecast.Defender);
+
+            var combatResult = Combat.ResolveCombat(combatForecast);
+
+            StartCoroutine(combatAnimator.AnimateCombatResult(combatResult));
         }
     }
 }
