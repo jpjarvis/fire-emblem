@@ -22,10 +22,11 @@ namespace FireEmblem.CombatView
             }
         }
 
-        public IEnumerator AttackAnimation()
+        public IEnumerator AttackAnimation(Action onAttackHit)
         {
             var direction = faceLeft ? -1 : 1;
             yield return MoveToSmooth(new Vector2(direction * 100, 0), 0.2f);
+            onAttackHit.Invoke();
             yield return MoveToSmooth(new Vector2(0, 0), 0.2f);
         }
     }
