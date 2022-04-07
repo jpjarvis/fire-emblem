@@ -7,7 +7,8 @@ namespace FireEmblem.CombatView
     public class HealthDisplay : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI hpText;
-
+        [SerializeField] private HealthBar healthBar;
+        
         private int _hp;
         private int _maxHp;
         
@@ -22,11 +23,17 @@ namespace FireEmblem.CombatView
         {
             _hp = Math.Max(_hp - damage, 0);
             UpdateHpText();
+            UpdateHealthBar();
         }
 
         private void UpdateHpText()
         {
             hpText.text = _hp.ToString();
+        }
+
+        private void UpdateHealthBar()
+        {
+            healthBar.SetHealthProportion((float) _hp / _maxHp);
         }
     }
 }
