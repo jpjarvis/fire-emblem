@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FireEmblem.Domain.Data;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FireEmblem.MapView
 {

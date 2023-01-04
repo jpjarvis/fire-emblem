@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 namespace FireEmblem.MapView
 {
     [CreateAssetMenu(fileName = "NewMapTile", menuName = "Fire Emblem/MapTile", order = 1)]
-    public class MapTile : TileBase
+    public class MapTile : TileBase, IMapTile
     {
         [SerializeField] private bool traversable;
         [SerializeField] private Sprite sprite;

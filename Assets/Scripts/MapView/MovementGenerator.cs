@@ -6,11 +6,11 @@ namespace FireEmblem.MapView
 {
     public class MovementGenerator
     {
-        private readonly MapGrid _mapGrid;
+        private readonly MapGrid mapGrid;
 
         public MovementGenerator(MapGrid mapGrid)
         {
-            _mapGrid = mapGrid;
+            this.mapGrid = mapGrid;
         }
 
         public Dictionary<MapPosition, AccessibleTile> GenerateAccessibleTiles(BaseUnit unit, IEnumerable<BaseUnit> enemyUnits)
@@ -101,7 +101,7 @@ namespace FireEmblem.MapView
         private bool CanMoveThrough(MapPosition mapPosition, IEnumerable<BaseUnit> enemyUnits)
         {
             return !enemyUnits.Any(unit => unit.Position.Equals(mapPosition)) &&
-                   _mapGrid.GetTileAt(mapPosition).IsTraversable;
+                   mapGrid.GetTileAt(mapPosition).IsTraversable;
         }
     }
 
