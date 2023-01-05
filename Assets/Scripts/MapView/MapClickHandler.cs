@@ -9,15 +9,15 @@ namespace FireEmblem.MapView
         [SerializeField] private MapGrid mapGrid;
         [SerializeField] private GameObject cursor;
 
-        private MapPosition _tileUnderMouse;
+        private MapPosition tileUnderMouse;
         
         private void Update()
         {
-            var position = MapPosition.FromVector(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            var position = GetGridPosition();
 
-            if (position != _tileUnderMouse)
+            if (position != tileUnderMouse)
             {
-                _tileUnderMouse = position;
+                tileUnderMouse = position;
                 map.HighlightTile(position);
                 mapGrid.MoveObjectToGridPosition(cursor, position);
             }
@@ -26,6 +26,15 @@ namespace FireEmblem.MapView
             {
                 map.SelectCell(position);
             }
+        }
+
+        private MapPosition GetGridPosition()
+        {
+            var gridPlane = new Plane(Vector3.up, mapGrid.transform.position);
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            var pointOnGrid = gridPlane.Raycast(ray, out var point) ? ray.GetPoint(point) : Vector3.zero;
+            
+            return MapPosition.From3dVector(pointOnGrid);
         }
     }
 }
