@@ -11,7 +11,7 @@ namespace FireEmblem.MapView
 
         public Unit Unit { get; set; }
 
-        public MapPosition Position => MapPosition.FromVector(transform.position);
+        public MapPosition Position => MapPosition.From3dVector(transform.position);
         
         private void Awake()
         {

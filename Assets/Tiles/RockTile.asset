@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   traversable: 0
   sprite: {fileID: 349823833441268365, guid: dfa84f47b6425cf4bb7b4dd9bd5a014c, type: 3}
+  gameObject: {fileID: 5859989161965117429, guid: f1aa35a0b3107f9078ad7dbff60b3368, type: 3}

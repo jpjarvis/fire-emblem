@@ -11,8 +11,8 @@ namespace FireEmblem.MapView
         [SerializeField] private TileObjectManager tileObjectManager;
         [SerializeField] private MapGrid mapGrid;
         [SerializeField] private UnitStatsDisplay unitStatsDisplay;
-        private List<PlayerUnit> PlayerUnits { get; set; } = new List<PlayerUnit>();
-        private List<EnemyUnit> EnemyUnits { get; set; } = new List<EnemyUnit>();
+        private List<PlayerUnit> PlayerUnits { get; set; } = new();
+        private List<EnemyUnit> EnemyUnits { get; set; } = new();
 
         private BaseUnit _selectedUnit;
         private Dictionary<MapPosition, AccessibleTile> _accessibleTiles;
@@ -25,11 +25,16 @@ namespace FireEmblem.MapView
 
             _movementGenerator = new MovementGenerator(mapGrid);
         }
-
+        
         private void SelectUnit(BaseUnit unit)
         {
             _selectedUnit = unit;
-            unitStatsDisplay.DisplayUnit(unit.Unit);
+
+            if (unitStatsDisplay != null)
+            {
+                unitStatsDisplay.DisplayUnit(unit.Unit);
+            }
+            
             tileObjectManager.DestroyAll();
             
             _accessibleTiles = _movementGenerator.GenerateAccessibleTiles(unit, EnemyUnits);
@@ -87,8 +92,8 @@ namespace FireEmblem.MapView
                 }
             }
         }
-        
-        public void ShowPathToTile(MapPosition targetPosition)
+
+        private void ShowPathToTile(MapPosition targetPosition)
         {
             var currentPosition = targetPosition;
 

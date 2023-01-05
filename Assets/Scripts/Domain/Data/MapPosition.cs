@@ -15,7 +15,7 @@ namespace FireEmblem.Domain.Data
         
         public override bool Equals(object other)
         {
-            if (!(other is MapPosition otherMapPosition))
+            if (other is not MapPosition otherMapPosition)
                 return false;
             
             return X == otherMapPosition.X && Y == otherMapPosition.Y;
@@ -26,6 +26,12 @@ namespace FireEmblem.Domain.Data
             return X ^ Y;
         }
 
-        public static MapPosition FromVector(Vector3 vector) => new MapPosition(Mathf.FloorToInt(vector.x), Mathf.FloorToInt(vector.y));
+        public static MapPosition FromVector(Vector3 vector) => new(Mathf.FloorToInt(vector.x), Mathf.FloorToInt(vector.y));
+        public static MapPosition From3dVector(Vector3 vector) => new(Mathf.FloorToInt(vector.x), Mathf.FloorToInt(vector.z));
+
+        public Vector3Int ToVector()
+        {
+            return new Vector3Int(X, Y, 0);
+        }
     }
 }

@@ -8,12 +8,22 @@ namespace FireEmblem.MapView
     {
         [SerializeField] private bool traversable;
         [SerializeField] private Sprite sprite;
+        [SerializeField] private GameObject gameObject;
 
         public bool IsTraversable => traversable;
 
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
         {
-            tileData.sprite = sprite;
+            if (sprite != null)
+            {
+                tileData.sprite = sprite;
+            }
+
+            if (gameObject != null)
+            {
+                tileData.gameObject = gameObject;
+            }
+            
             base.GetTileData(position, tilemap, ref tileData);
         }
     }
