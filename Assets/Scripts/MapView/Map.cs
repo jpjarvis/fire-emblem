@@ -56,7 +56,7 @@ namespace FireEmblem.MapView
                 return;
             }
 
-            var selectedPlayerUnit = PlayerUnits.FirstOrDefault(u => u.Position.Equals(position));
+            var selectedPlayerUnit = PlayerUnits.FirstOrDefault(u => u.Position == position);
             if (selectedPlayerUnit)
             {
                 SelectUnit(selectedPlayerUnit);
@@ -99,7 +99,7 @@ namespace FireEmblem.MapView
 
             var tilesInPath = new List<MapPosition>();
             
-            while (currentPosition != null && !currentPosition.Equals(_selectedUnit.Position))
+            while (currentPosition != null && currentPosition != _selectedUnit.Position)
             {
                 tilesInPath.Add(currentPosition);
                 currentPosition = _accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();

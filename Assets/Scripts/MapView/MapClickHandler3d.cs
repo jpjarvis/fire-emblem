@@ -15,7 +15,7 @@ namespace FireEmblem.MapView
         {
             var position = GetGridPosition();
 
-            if (!position.Equals(tileUnderMouse))
+            if (position != tileUnderMouse)
             {
                 tileUnderMouse = position;
                 map.HighlightTile(position);

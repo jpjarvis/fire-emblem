@@ -15,7 +15,7 @@ namespace FireEmblem.MapView
         {
             var position = MapPosition.FromVector(Camera.main.ScreenToWorldPoint(Input.mousePosition));
 
-            if (!position.Equals(_tileUnderMouse))
+            if (position != _tileUnderMouse)
             {
                 _tileUnderMouse = position;
                 map.HighlightTile(position);

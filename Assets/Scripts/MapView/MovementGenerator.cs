@@ -32,7 +32,7 @@ namespace FireEmblem.MapView
                 foreach (var sourceTile in workingTiles)
                 {
                     foreach (var tile in TilesInRange(sourceTile, 1, 1).Where(tileToCheck =>
-                                 CanMoveThrough(tileToCheck, enemyUnits) && !tileToCheck.Equals(startPosition)))
+                                 CanMoveThrough(tileToCheck, enemyUnits) && tileToCheck != startPosition))
                     {
                         moveableTiles.Add(tile);
                         newWorkingTiles.Add(tile);
@@ -55,7 +55,7 @@ namespace FireEmblem.MapView
             {
                 foreach (var attackTile in TilesInRange(sourceTile, minAttackRange, maxAttackRange))
                 {
-                    if (!moveableTiles.Contains(attackTile) && !attackTile.Equals(startPosition))
+                    if (!moveableTiles.Contains(attackTile) && attackTile != startPosition)
                     {
                         attackableTiles.Add(attackTile);
                         if (attackSourceTiles.TryGetValue(attackTile, out var sourceTiles))
@@ -100,7 +100,7 @@ namespace FireEmblem.MapView
 
         private bool CanMoveThrough(MapPosition mapPosition, IEnumerable<BaseUnit> enemyUnits)
         {
-            return !enemyUnits.Any(unit => unit.Position.Equals(mapPosition)) &&
+            return !enemyUnits.Any(unit => unit.Position == mapPosition) &&
                    mapGrid.GetTileAt(mapPosition).IsTraversable;
         }
     }
