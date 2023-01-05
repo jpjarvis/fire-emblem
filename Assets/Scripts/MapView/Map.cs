@@ -14,21 +14,21 @@ namespace FireEmblem.MapView
         private List<PlayerUnit> PlayerUnits { get; set; } = new();
         private List<EnemyUnit> EnemyUnits { get; set; } = new();
 
-        private BaseUnit _selectedUnit;
-        private Dictionary<MapPosition, AccessibleTile> _accessibleTiles;
-        private MovementGenerator _movementGenerator;
+        private PlayerUnit selectedUnit;
+        private Dictionary<MapPosition, AccessibleTile> accessibleTiles;
+        private MovementGenerator movementGenerator;
 
         private void Awake()
         {
             PlayerUnits = GetComponentsInChildren<PlayerUnit>().ToList();
             EnemyUnits = GetComponentsInChildren<EnemyUnit>().ToList();
 
-            _movementGenerator = new MovementGenerator(mapGrid);
+            movementGenerator = new MovementGenerator(mapGrid);
         }
         
         private void SelectUnit(BaseUnit unit)
         {
-            _selectedUnit = unit;
+            selectedUnit = unit;
 
             if (unitStatsDisplay != null)
             {
@@ -37,27 +37,32 @@ namespace FireEmblem.MapView
             
             tileObjectManager.DestroyAll();
             
-            _accessibleTiles = _movementGenerator.GenerateAccessibleTiles(unit, EnemyUnits);
-            ShowAccessibleTiles(_accessibleTiles);
+            accessibleTiles = movementGenerator.GenerateAccessibleTiles(unit, EnemyUnits);
+            ShowAccessibleTiles(accessibleTiles);
         }
 
         public void SelectCell(MapPosition position)
         {
-            if (_selectedUnit != null)
+            if (selectedUnit != null)
             {
-                var tileIsAccessible = _accessibleTiles.TryGetValue(position, out var tile);
+                var tileIsAccessible = accessibleTiles.TryGetValue(position, out var tile);
                 if (tileIsAccessible && tile is { Accessibility: TileAccessibility.CanMoveTo })
                 {
-                    mapGrid.MoveObjectToGridPosition(_selectedUnit.gameObject, position);
+                    mapGrid.MoveObjectToGridPosition(selectedUnit.gameObject, position);
+                    selectedUnit.HasActed = true;
+                    if (PlayerUnits.All(x => x.HasActed))
+                    {
+                        
+                    }
                 }
 
                 tileObjectManager.DestroyAll();
-                _selectedUnit = null;
+                selectedUnit = null;
                 return;
             }
 
             var selectedPlayerUnit = PlayerUnits.FirstOrDefault(u => u.Position == position);
-            if (selectedPlayerUnit)
+            if (selectedPlayerUnit && !selectedPlayerUnit.HasActed)
             {
                 SelectUnit(selectedPlayerUnit);
             }
@@ -83,10 +88,10 @@ namespace FireEmblem.MapView
 
         public void HighlightTile(MapPosition tile)
         {
-            if (_selectedUnit != null)
+            if (selectedUnit != null)
             {
                 tileObjectManager.ClearMovePath();
-                if (_accessibleTiles.ContainsKey(tile))
+                if (accessibleTiles.ContainsKey(tile))
                 {
                     ShowPathToTile(tile);
                 }
@@ -99,10 +104,10 @@ namespace FireEmblem.MapView
 
             var tilesInPath = new List<MapPosition>();
             
-            while (currentPosition != null && currentPosition != _selectedUnit.Position)
+            while (currentPosition != null && currentPosition != selectedUnit.Position)
             {
                 tilesInPath.Add(currentPosition);
-                currentPosition = _accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
+                currentPosition = accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
             }
 
             foreach (var tile in tilesInPath)
