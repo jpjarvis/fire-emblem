@@ -522,8 +522,8 @@ GameObject:
   - component: {fileID: 1405689639}
   - component: {fileID: 1405689638}
   - component: {fileID: 1405689644}
-  - component: {fileID: 1405689643}
   - component: {fileID: 1405689645}
+  - component: {fileID: 1405689646}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -575,7 +575,7 @@ MonoBehaviour:
   moveTilePrefab: {fileID: 5859989161965117429, guid: 4df415ca7e70dc675b47d8d4460d3d54, type: 3}
   attackTilePrefab: {fileID: 5859989161965117429, guid: dc5cca701bdf802239c9cb64cb4d3930, type: 3}
   movePathTilePrefab: {fileID: 5859989161965117429, guid: f1aa35a0b3107f9078ad7dbff60b3368, type: 3}
-  grid: {fileID: 1405689643}
+  grid: {fileID: 1405689646}
 --- !u!114 &1405689639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -589,20 +589,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tileObjectManager: {fileID: 1405689638}
-  mapGrid: {fileID: 1405689643}
+  mapGrid: {fileID: 1405689646}
   unitStatsDisplay: {fileID: 0}
---- !u!114 &1405689643
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1405689633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 320d5a77034a4142900a6c4625764618, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1839735485 &1405689644
 Tilemap:
   m_ObjectHideFlags: 0
@@ -1358,5 +1346,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   map: {fileID: 1405689639}
-  mapGrid: {fileID: 1405689643}
+  mapGrid: {fileID: 1405689646}
   cursor: {fileID: 242077322}
+--- !u!114 &1405689646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1405689633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f6fff503c0446c9b153c6c18d165c35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
