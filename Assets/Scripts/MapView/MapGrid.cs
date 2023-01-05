@@ -10,7 +10,7 @@ namespace FireEmblem.MapView
     {
         private Tilemap _tilemap;
         private Grid _grid;
-        
+
         private void Awake()
         {
             _tilemap = GetComponent<Tilemap>();
@@ -19,7 +19,14 @@ namespace FireEmblem.MapView
 
         public IMapTile GetTileAt(MapPosition mapPosition)
         {
-            return _tilemap.GetTile<MapTile>(new Vector3Int(mapPosition.X, mapPosition.Y, 0));
+            var tile = _tilemap.GetTile<MapTile>(new Vector3Int(mapPosition.X, mapPosition.Y, 0));
+
+            if (tile)
+            {
+                return tile;
+            }
+
+            return new EmptyMapTile();
         }
 
         public void MoveObjectToGridPosition(GameObject objectToMove, MapPosition position)
@@ -27,12 +34,17 @@ namespace FireEmblem.MapView
             objectToMove.transform.position =
                 _grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
         }
-        
+
         public GameObject InstantiateAtGridPosition(GameObject prefab, MapPosition position)
         {
             var instantiatedObject = Instantiate(prefab, transform);
             MoveObjectToGridPosition(instantiatedObject, position);
             return instantiatedObject;
+        }
+
+        private class EmptyMapTile : IMapTile
+        {
+            public bool IsTraversable => true;
         }
     }
 }
