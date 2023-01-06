@@ -6,7 +6,7 @@ namespace FireEmblem.MapView
 {
     public static class EnemyAi
     {
-        public static MapPosition GetMoveDestination(Unit unit, Map map)
+        public static IEnemyAction GetAction(Unit unit, Map map)
         {
             var movementGenerator = new MovementGenerator(map);
             var attackTiles = movementGenerator.GenerateAccessibleTiles(unit)
@@ -23,7 +23,23 @@ namespace FireEmblem.MapView
 
                 return false;
             });
-            return tileToAttack.Value?.SourceTiles.FirstOrDefault () ?? map.GetPositionOfUnit(unit);
+
+            if (tileToAttack.Value != null)
+            {
+                return new MoveAndAttackAction(tileToAttack.Value.SourceTiles.FirstOrDefault(), map.GetUnitAt(tileToAttack.Key));
+            }
+
+            return new NoAction();
         }
+
+        
     }
+    
+    public interface IEnemyAction
+    {
+    }
+
+    public record MoveAndAttackAction(MapPosition PositionToMoveTo, Unit UnitToAttack) : IEnemyAction;
+
+    public record NoAction : IEnemyAction;
 }

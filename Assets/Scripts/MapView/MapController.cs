@@ -49,9 +49,7 @@ namespace FireEmblem.MapView
                         if (targetUnit != null && targetUnit.Allegiance != Allegiance.Player)
                         {
                             map.MoveUnit(selectedUnit, tile.SourceTiles.First());
-                            var combatForecast = CombatForecast.Create(selectedUnit, targetUnit, 1);
-                            var combatResult = Combat.ResolveCombat(combatForecast);
-                            HandleCombatResult(combatResult);
+                            InitiateCombat(selectedUnit, targetUnit);
                         }
                     }
                     
@@ -74,7 +72,14 @@ namespace FireEmblem.MapView
                 SelectUnit(selectedPlayerUnit);
             }
         }
-        
+
+        private void InitiateCombat(Unit attacker, Unit defender)
+        {
+            var combatForecast = CombatForecast.Create(attacker, defender, 1);
+            var combatResult = Combat.ResolveCombat(combatForecast);
+            HandleCombatResult(combatResult);
+        }
+
         public void HighlightCell(MapPosition position)
         {
             if (selectedUnit != null)
@@ -142,8 +147,17 @@ namespace FireEmblem.MapView
         {
             foreach (var enemyUnit in map.Units.Where(x => x.Allegiance == Allegiance.Enemy))
             {
-                var destination = EnemyAi.GetMoveDestination(enemyUnit, map);
-                map.MoveUnit(enemyUnit, destination);
+                var enemyAction = EnemyAi.GetAction(enemyUnit, map);
+
+                switch (enemyAction)
+                { 
+                    case MoveAndAttackAction a:
+                        map.MoveUnit(enemyUnit, a.PositionToMoveTo);
+                        InitiateCombat(enemyUnit, a.UnitToAttack);
+                        break;
+                    case NoAction:
+                        break;
+                }
             }
         }
     }
