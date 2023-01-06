@@ -11,7 +11,7 @@ namespace FireEmblem.MapView
 
         protected abstract Allegiance Allegiance { get; }
         
-        public Unit Unit { get; set; }
+        public Unit Unit { get; private set; }
         
         public MapPosition Position => MapPosition.From3dVector(transform.position);
         

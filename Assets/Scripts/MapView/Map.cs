@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
 using FireEmblem.MapView.UI;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace FireEmblem.MapView
@@ -12,22 +14,35 @@ namespace FireEmblem.MapView
         [SerializeField] private MapGrid mapGrid;
         [SerializeField] private UnitStatsDisplay unitStatsDisplay;
 
-        private PlayerUnit selectedUnit;
+        [CanBeNull] private Unit selectedUnit;
         private Dictionary<MapPosition, AccessibleTile> accessibleTiles;
         private MovementGenerator movementGenerator;
 
+        private List<Unit> unitsToMove;
+        
         private void Awake()
         {
             movementGenerator = new MovementGenerator(mapGrid);
+            unitsToMove = new List<Unit>();
         }
-        
-        private void SelectUnit(PlayerUnit unit)
+
+        private void Start()
         {
+            StartPlayerTurn();
+        }
+
+        private void SelectUnit(Unit unit)
+        {
+            if (unit.Allegiance != Allegiance.Player)
+            {
+                return;
+            }
+            
             selectedUnit = unit;
 
             if (unitStatsDisplay != null)
             {
-                unitStatsDisplay.DisplayUnit(unit.Unit);
+                unitStatsDisplay.DisplayUnit(unit);
             }
             
             tileObjectManager.DestroyAll();
@@ -43,9 +58,9 @@ namespace FireEmblem.MapView
                 var tileIsAccessible = accessibleTiles.TryGetValue(position, out var tile);
                 if (tileIsAccessible && tile is { Accessibility: TileAccessibility.CanMoveTo })
                 {
-                    mapGrid.MoveObjectToGridPosition(selectedUnit.gameObject, position);
-                    selectedUnit.HasActed = true;
-                    if (mapGrid.Units.OfType<PlayerUnit>().All(x => x.HasActed))
+                    mapGrid.MoveUnit(selectedUnit, position);
+                    unitsToMove.Remove(selectedUnit);
+                    if (!unitsToMove.Any())
                     {
                         TakeEnemyTurn();
                         StartPlayerTurn();
@@ -57,8 +72,8 @@ namespace FireEmblem.MapView
                 return;
             }
 
-            var selectedPlayerUnit = mapGrid.Units.OfType<PlayerUnit>().FirstOrDefault(u => u.Position == position);
-            if (selectedPlayerUnit && !selectedPlayerUnit.HasActed)
+            var selectedPlayerUnit = mapGrid.GetUnitAt(position);
+            if (selectedPlayerUnit != null && unitsToMove.Contains(selectedPlayerUnit))
             {
                 SelectUnit(selectedPlayerUnit);
             }
@@ -66,18 +81,18 @@ namespace FireEmblem.MapView
 
         private void StartPlayerTurn()
         {
-            foreach (var playerUnit in mapGrid.Units.OfType<PlayerUnit>())
+            foreach (var playerUnit in mapGrid.Units.Where(x => x.Allegiance == Allegiance.Player))
             {
-                playerUnit.HasActed = false;
+                unitsToMove.Add(playerUnit);
             }
         }
 
         private void TakeEnemyTurn()
         {
-            foreach (var enemyUnit in mapGrid.Units.OfType<EnemyUnit>())
+            foreach (var enemyUnit in mapGrid.Units.Where(x => x.Allegiance == Allegiance.Enemy))
             {
-                var destination = enemyUnit.GetMoveDestination(mapGrid);
-                mapGrid.MoveObjectToGridPosition(enemyUnit.gameObject, destination);
+                var destination = EnemyAi.GetMoveDestination(enemyUnit, mapGrid);
+                mapGrid.MoveUnit(enemyUnit, destination);
             }
         }
 
@@ -116,8 +131,9 @@ namespace FireEmblem.MapView
             var currentPosition = targetPosition;
 
             var tilesInPath = new List<MapPosition>();
-            
-            while (currentPosition != null && currentPosition != selectedUnit.Position)
+
+            var selectedUnitPosition = mapGrid.GetPositionOfUnit(selectedUnit);
+            while (currentPosition != null && currentPosition != selectedUnitPosition)
             {
                 tilesInPath.Add(currentPosition);
                 currentPosition = accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();

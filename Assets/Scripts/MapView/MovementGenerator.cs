@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
 
 namespace FireEmblem.MapView
@@ -13,13 +14,21 @@ namespace FireEmblem.MapView
             this.mapGrid = mapGrid;
         }
 
-        public Dictionary<MapPosition, AccessibleTile> GenerateAccessibleTiles(BaseUnit unit)
+        public Dictionary<MapPosition, AccessibleTile> GenerateAccessibleTiles(Unit unit)
         {
-            var enemyUnits = mapGrid.Units.Where(x => x.Unit.Allegiance != unit.Unit.Allegiance);
-            var startPosition = unit.Position;
-            var maximumMoveDistance = unit.Unit.Stats.Movement;
-            var minAttackRange = unit.Unit.Weapon.Data.MinRange;
-            var maxAttackRange = unit.Unit.Weapon.Data.MaxRange;
+            var startPosition = mapGrid.GetPositionOfUnit(unit);
+            if (startPosition == null)
+            {
+                return new Dictionary<MapPosition, AccessibleTile>();
+            }
+            
+            var enemyUnitPositions = mapGrid.Units
+                .Where(x => x.Allegiance != unit.Allegiance)
+                .Select(x => mapGrid.GetPositionOfUnit(x));
+
+            var maximumMoveDistance = unit.Stats.Movement;
+            var minAttackRange = unit.Weapon.Data.MinRange;
+            var maxAttackRange = unit.Weapon.Data.MaxRange;
 
             var workingTiles = new HashSet<MapPosition> { startPosition };
             var moveableTiles = new HashSet<MapPosition>();
@@ -33,7 +42,7 @@ namespace FireEmblem.MapView
                 foreach (var sourceTile in workingTiles)
                 {
                     foreach (var tile in TilesInRange(sourceTile, 1, 1).Where(tileToCheck =>
-                                 CanMoveThrough(tileToCheck, enemyUnits) && tileToCheck != startPosition))
+                                 CanMoveThrough(tileToCheck, enemyUnitPositions) && tileToCheck != startPosition))
                     {
                         moveableTiles.Add(tile);
                         newWorkingTiles.Add(tile);
@@ -42,7 +51,6 @@ namespace FireEmblem.MapView
                             movementSourceTiles.Add(tile, sourceTile);
                         }
                     }
-                    
                 }
 
                 workingTiles = newWorkingTiles;
@@ -52,7 +60,7 @@ namespace FireEmblem.MapView
             var attackableTiles = new HashSet<MapPosition>();
             var attackSourceTiles = new Dictionary<MapPosition, List<MapPosition>>();
 
-            foreach (var sourceTile in moveableTiles.Concat(new[] { unit.Position }))
+            foreach (var sourceTile in moveableTiles.Concat(new[] { startPosition }))
             {
                 foreach (var attackTile in TilesInRange(sourceTile, minAttackRange, maxAttackRange))
                 {
@@ -65,14 +73,16 @@ namespace FireEmblem.MapView
                         }
                         else
                         {
-                            attackSourceTiles.Add(attackTile, new List<MapPosition> {sourceTile});
+                            attackSourceTiles.Add(attackTile, new List<MapPosition> { sourceTile });
                         }
                     }
                 }
             }
 
-            var moveableTilesDictionary = moveableTiles.ToDictionary(t => t, t => new AccessibleTile(TileAccessibility.CanMoveTo, new []{ movementSourceTiles[t] }));
-            var attackableTilesDictionary = attackableTiles.ToDictionary(t => t, t=> new AccessibleTile(TileAccessibility.CanAttack, attackSourceTiles[t]));
+            var moveableTilesDictionary = moveableTiles.ToDictionary(t => t,
+                t => new AccessibleTile(TileAccessibility.CanMoveTo, new[] { movementSourceTiles[t] }));
+            var attackableTilesDictionary = attackableTiles.ToDictionary(t => t,
+                t => new AccessibleTile(TileAccessibility.CanAttack, attackSourceTiles[t]));
 
             return moveableTilesDictionary.Concat(attackableTilesDictionary).ToDictionary(kv => kv.Key, kv => kv.Value);
         }
@@ -99,9 +109,9 @@ namespace FireEmblem.MapView
             }
         }
 
-        private bool CanMoveThrough(MapPosition mapPosition, IEnumerable<BaseUnit> enemyUnits)
+        private bool CanMoveThrough(MapPosition mapPosition, IEnumerable<MapPosition> enemyUnitPositions)
         {
-            return !enemyUnits.Any(unit => unit.Position == mapPosition) &&
+            return !enemyUnitPositions.Contains(mapPosition) &&
                    mapGrid.GetTileAt(mapPosition).IsTraversable;
         }
     }
@@ -113,9 +123,9 @@ namespace FireEmblem.MapView
             Accessibility = tileAccessibility;
             SourceTiles = sourceTiles;
         }
-        
+
         public TileAccessibility Accessibility { get; }
-        
+
         public IEnumerable<MapPosition> SourceTiles { get; }
     }
 

@@ -15,16 +15,41 @@ namespace FireEmblem.MapView
         private Tilemap tilemap;
         private Grid grid;
 
-        public IEnumerable<BaseUnit> Units { get; private set; }
-        
+        private Dictionary<MapPosition, BaseUnit> positionsToUnitObject;
+        private Dictionary<Unit, MapPosition> unitsToPosition;
+
+        public IReadOnlyCollection<Unit> Units
+        {
+            get
+            {
+                EnsureUnitDictionariesAreInitialised();
+                return positionsToUnitObject?.Values.Select(x => x.Unit).ToList();
+            }
+        }
+
         private void Awake()
         {
             tilemap = GetComponent<Tilemap>();
             grid = GetComponent<Grid>();
-            
-            Units = GetComponentsInChildren<BaseUnit>().ToList();
         }
 
+        private void Start()
+        {
+            EnsureUnitDictionariesAreInitialised();
+        }
+
+        private void EnsureUnitDictionariesAreInitialised()
+        {
+            if (positionsToUnitObject != null && unitsToPosition != null)
+            {
+                return;
+            }
+            
+            var unitObjects = GetComponentsInChildren<BaseUnit>();
+            positionsToUnitObject = unitObjects.ToDictionary(x => x.Position, x => x);
+            unitsToPosition = unitObjects.ToDictionary(x => x.Unit, x => x.Position);
+        }
+        
         public IMapTile GetTileAt(MapPosition mapPosition)
         {
             var tile = tilemap.GetTile<MapTile>(new Vector3Int(mapPosition.X, mapPosition.Y, 0));
@@ -40,9 +65,26 @@ namespace FireEmblem.MapView
         [CanBeNull]
         public Unit GetUnitAt(MapPosition mapPosition)
         {
-            return Units.FirstOrDefault(x => x.Position == mapPosition)?.Unit;
+            return positionsToUnitObject.GetValueOrDefault(mapPosition)?.Unit;
         }
 
+        [CanBeNull]
+        public MapPosition GetPositionOfUnit(Unit unit)
+        {
+            return unitsToPosition.GetValueOrDefault(unit);
+        }
+
+        public void MoveUnit(Unit unit, MapPosition destination)
+        {
+            unitsToPosition.Remove(unit, out var startPosition);
+            unitsToPosition.Add(unit, destination);
+
+            positionsToUnitObject.Remove(startPosition, out var unitObject);
+            positionsToUnitObject.Add(destination, unitObject);
+            
+            MoveObjectToGridPosition(unitObject.gameObject, destination);
+        }
+        
         public void MoveObjectToGridPosition(GameObject objectToMove, MapPosition position)
         {
             objectToMove.transform.position =
