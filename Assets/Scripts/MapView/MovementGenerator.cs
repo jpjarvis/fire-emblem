@@ -7,24 +7,24 @@ namespace FireEmblem.MapView
 {
     public class MovementGenerator
     {
-        private readonly MapGrid mapGrid;
+        private readonly Map map;
 
-        public MovementGenerator(MapGrid mapGrid)
+        public MovementGenerator(Map map)
         {
-            this.mapGrid = mapGrid;
+            this.map = map;
         }
 
         public Dictionary<MapPosition, AccessibleTile> GenerateAccessibleTiles(Unit unit)
         {
-            var startPosition = mapGrid.GetPositionOfUnit(unit);
+            var startPosition = map.GetPositionOfUnit(unit);
             if (startPosition == null)
             {
                 return new Dictionary<MapPosition, AccessibleTile>();
             }
             
-            var enemyUnitPositions = mapGrid.Units
+            var enemyUnitPositions = map.Units
                 .Where(x => x.Allegiance != unit.Allegiance)
-                .Select(x => mapGrid.GetPositionOfUnit(x));
+                .Select(x => map.GetPositionOfUnit(x));
 
             var maximumMoveDistance = unit.Stats.Movement;
             var minAttackRange = unit.Weapon.Data.MinRange;
@@ -112,7 +112,7 @@ namespace FireEmblem.MapView
         private bool CanMoveThrough(MapPosition mapPosition, IEnumerable<MapPosition> enemyUnitPositions)
         {
             return !enemyUnitPositions.Contains(mapPosition) &&
-                   mapGrid.GetTileAt(mapPosition).IsTraversable;
+                   map.GetTileAt(mapPosition).IsTraversable;
         }
     }
 

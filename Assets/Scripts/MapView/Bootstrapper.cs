@@ -8,7 +8,7 @@ namespace FireEmblem.MapView
     {
         private void Start()
         {
-            var map = FindObjectOfType<Map>();
+            var map = FindObjectOfType<MapController>();
             
             map.SelectCell(new MapPosition(0, 0));
         }

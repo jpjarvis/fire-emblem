@@ -533,10 +533,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1405689634}
   - component: {fileID: 1405689637}
-  - component: {fileID: 1405689639}
   - component: {fileID: 1405689638}
   - component: {fileID: 1405689644}
-  - component: {fileID: 1405689645}
   - component: {fileID: 1405689646}
   m_Layer: 0
   m_Name: Map
@@ -591,21 +589,6 @@ MonoBehaviour:
   attackTilePrefab: {fileID: 5859989161965117429, guid: dc5cca701bdf802239c9cb64cb4d3930, type: 3}
   movePathTilePrefab: {fileID: 5859989161965117429, guid: f1aa35a0b3107f9078ad7dbff60b3368, type: 3}
   grid: {fileID: 1405689646}
---- !u!114 &1405689639
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1405689633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 398e5d74b029437d87af1b70d7204678, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tileObjectManager: {fileID: 1405689638}
-  mapGrid: {fileID: 1405689646}
-  unitStatsDisplay: {fileID: 0}
 --- !u!1839735485 &1405689644
 Tilemap:
   m_ObjectHideFlags: 0
@@ -2208,21 +2191,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &1405689645
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1405689633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ccddbdf958847ff9fb55d0bd594e79e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  map: {fileID: 1405689639}
-  mapGrid: {fileID: 1405689646}
-  cursor: {fileID: 242077322}
 --- !u!114 &1405689646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2347,3 +2315,66 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1478919366}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2106070857
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2106070860}
+  - component: {fileID: 2106070859}
+  - component: {fileID: 2106070858}
+  m_Layer: 0
+  m_Name: Controller
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2106070858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2106070857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ccddbdf958847ff9fb55d0bd594e79e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapController: {fileID: 2106070859}
+  map: {fileID: 1405689646}
+  cursor: {fileID: 242077322}
+--- !u!114 &2106070859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2106070857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 398e5d74b029437d87af1b70d7204678, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tileObjectManager: {fileID: 1405689638}
+  map: {fileID: 1405689646}
+  unitStatsDisplay: {fileID: 0}
+--- !u!4 &2106070860
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2106070857}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.215124, y: 7.60015, z: 1.5750628}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

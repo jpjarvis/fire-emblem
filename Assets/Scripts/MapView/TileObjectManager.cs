@@ -14,7 +14,7 @@ namespace FireEmblem.MapView
         [SerializeField] private GameObject moveTilePrefab;
         [SerializeField] private GameObject attackTilePrefab;
         [SerializeField] private GameObject movePathTilePrefab;
-        [SerializeField] private MapGrid grid;
+        [SerializeField] private Map grid;
 
         public void CreateMoveTile(MapPosition mapPosition)
         {

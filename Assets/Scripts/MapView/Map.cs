@@ -2,147 +2,105 @@ using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
-using FireEmblem.MapView.UI;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace FireEmblem.MapView
 {
+    [RequireComponent(typeof(Tilemap))]
+    [RequireComponent(typeof(Grid))]
     public class Map : MonoBehaviour
     {
-        [SerializeField] private TileObjectManager tileObjectManager;
-        [SerializeField] private MapGrid mapGrid;
-        [SerializeField] private UnitStatsDisplay unitStatsDisplay;
+        private Tilemap tilemap;
+        private Grid grid;
 
-        [CanBeNull] private Unit selectedUnit;
-        private Dictionary<MapPosition, AccessibleTile> accessibleTiles;
-        private MovementGenerator movementGenerator;
+        private Dictionary<MapPosition, UnitObject> positionsToUnitObject;
+        private Dictionary<Unit, MapPosition> unitsToPosition;
 
-        private List<Unit> unitsToMove;
-        
+        public IEnumerable<Unit> Units
+        {
+            get
+            {
+                EnsureUnitDictionariesAreInitialised();
+                return positionsToUnitObject?.Values.Select(x => x.Unit).ToList();
+            }
+        }
+
         private void Awake()
         {
-            movementGenerator = new MovementGenerator(mapGrid);
-            unitsToMove = new List<Unit>();
+            tilemap = GetComponent<Tilemap>();
+            grid = GetComponent<Grid>();
         }
 
         private void Start()
         {
-            StartPlayerTurn();
+            EnsureUnitDictionariesAreInitialised();
         }
 
-        private void SelectUnit(Unit unit)
+        private void EnsureUnitDictionariesAreInitialised()
         {
-            if (unit.Allegiance != Allegiance.Player)
+            if (positionsToUnitObject != null && unitsToPosition != null)
             {
                 return;
             }
             
-            selectedUnit = unit;
+            var unitObjects = GetComponentsInChildren<UnitObject>();
+            positionsToUnitObject = unitObjects.ToDictionary(x => x.Position, x => x);
+            unitsToPosition = unitObjects.ToDictionary(x => x.Unit, x => x.Position);
+        }
+        
+        public IMapTile GetTileAt(MapPosition mapPosition)
+        {
+            var tile = tilemap.GetTile<MapTile>(new Vector3Int(mapPosition.X, mapPosition.Y, 0));
 
-            if (unitStatsDisplay != null)
+            if (tile)
             {
-                unitStatsDisplay.DisplayUnit(unit);
+                return tile;
             }
+
+            return new EmptyMapTile();
+        }
+
+        [CanBeNull]
+        public Unit GetUnitAt(MapPosition mapPosition)
+        {
+            return positionsToUnitObject.GetValueOrDefault(mapPosition)?.Unit;
+        }
+
+        [CanBeNull]
+        public MapPosition GetPositionOfUnit(Unit unit)
+        {
+            return unitsToPosition.GetValueOrDefault(unit);
+        }
+
+        public void MoveUnit(Unit unit, MapPosition destination)
+        {
+            unitsToPosition.Remove(unit, out var startPosition);
+            unitsToPosition.Add(unit, destination);
+
+            positionsToUnitObject.Remove(startPosition, out var unitObject);
+            positionsToUnitObject.Add(destination, unitObject);
             
-            tileObjectManager.DestroyAll();
-            
-            accessibleTiles = movementGenerator.GenerateAccessibleTiles(unit);
-            ShowAccessibleTiles(accessibleTiles);
+            MoveObjectToGridPosition(unitObject.gameObject, destination);
+        }
+        
+        public void MoveObjectToGridPosition(GameObject objectToMove, MapPosition position)
+        {
+            objectToMove.transform.position =
+                grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
         }
 
-        public void SelectCell(MapPosition position)
+        public GameObject InstantiateAtGridPosition(GameObject prefab, MapPosition position)
         {
-            if (selectedUnit != null)
-            {
-                var tileIsAccessible = accessibleTiles.TryGetValue(position, out var tile);
-                if (tileIsAccessible && tile is { Accessibility: TileAccessibility.CanMoveTo })
-                {
-                    mapGrid.MoveUnit(selectedUnit, position);
-                    unitsToMove.Remove(selectedUnit);
-                    if (!unitsToMove.Any())
-                    {
-                        TakeEnemyTurn();
-                        StartPlayerTurn();
-                    }
-                }
-
-                tileObjectManager.DestroyAll();
-                selectedUnit = null;
-                return;
-            }
-
-            var selectedPlayerUnit = mapGrid.GetUnitAt(position);
-            if (selectedPlayerUnit != null && unitsToMove.Contains(selectedPlayerUnit))
-            {
-                SelectUnit(selectedPlayerUnit);
-            }
+            var instantiatedObject = Instantiate(prefab, transform);
+            MoveObjectToGridPosition(instantiatedObject, position);
+            return instantiatedObject;
         }
 
-        private void StartPlayerTurn()
+        private class EmptyMapTile : IMapTile
         {
-            foreach (var playerUnit in mapGrid.Units.Where(x => x.Allegiance == Allegiance.Player))
-            {
-                unitsToMove.Add(playerUnit);
-            }
-        }
-
-        private void TakeEnemyTurn()
-        {
-            foreach (var enemyUnit in mapGrid.Units.Where(x => x.Allegiance == Allegiance.Enemy))
-            {
-                var destination = EnemyAi.GetMoveDestination(enemyUnit, mapGrid);
-                mapGrid.MoveUnit(enemyUnit, destination);
-            }
-        }
-
-        private void ShowAccessibleTiles(Dictionary<MapPosition, AccessibleTile> accessibleTiles)
-        {
-            foreach (var position in accessibleTiles.Keys)
-            {
-                var tile = accessibleTiles[position];
-                
-                switch (tile.Accessibility)
-                {
-                    case TileAccessibility.CanMoveTo:
-                        tileObjectManager.CreateMoveTile(position);
-                        break;
-                    case TileAccessibility.CanAttack:
-                        tileObjectManager.CreateAttackTile(position);
-                        break;
-                }
-            }
-        }
-
-        public void HighlightTile(MapPosition tile)
-        {
-            if (selectedUnit != null)
-            {
-                tileObjectManager.ClearMovePath();
-                if (accessibleTiles.ContainsKey(tile))
-                {
-                    ShowPathToTile(tile);
-                }
-            }
-        }
-
-        private void ShowPathToTile(MapPosition targetPosition)
-        {
-            var currentPosition = targetPosition;
-
-            var tilesInPath = new List<MapPosition>();
-
-            var selectedUnitPosition = mapGrid.GetPositionOfUnit(selectedUnit);
-            while (currentPosition != null && currentPosition != selectedUnitPosition)
-            {
-                tilesInPath.Add(currentPosition);
-                currentPosition = accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
-            }
-
-            foreach (var tile in tilesInPath)
-            {
-                tileObjectManager.CreateMovePathTile(tile);
-            }
+            public bool IsTraversable => true;
         }
     }
 }

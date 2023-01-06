@@ -5,8 +5,8 @@ namespace FireEmblem.MapView
 {
     public class MapClickHandler2d : MonoBehaviour
     {
+        [SerializeField] private MapController mapController;
         [SerializeField] private Map map;
-        [SerializeField] private MapGrid mapGrid;
         [SerializeField] private GameObject cursor;
 
         private MapPosition _tileUnderMouse;
@@ -18,13 +18,13 @@ namespace FireEmblem.MapView
             if (position != _tileUnderMouse)
             {
                 _tileUnderMouse = position;
-                map.HighlightTile(position);
-                mapGrid.MoveObjectToGridPosition(cursor, position);
+                mapController.HighlightCell(position);
+                map.MoveObjectToGridPosition(cursor, position);
             }
             
             if (Input.GetMouseButtonDown(0))
             {
-                map.SelectCell(position);
+                mapController.SelectCell(position);
             }
         }
     }

@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 
 namespace FireEmblem.MapView
 {
-    public class MapGrid2d : MapGrid
+    public class MapGrid2d : Map
     {
         
     }
