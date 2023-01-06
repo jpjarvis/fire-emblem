@@ -78,7 +78,7 @@ namespace FireEmblem.MapView
         {
             foreach (var enemyUnit in EnemyUnits)
             {
-                var destination = enemyUnit.GetMoveDestination(enemyUnit, PlayerUnits, movementGenerator);
+                var destination = enemyUnit.GetMoveDestination(PlayerUnits, movementGenerator);
                 mapGrid.MoveObjectToGridPosition(enemyUnit.gameObject, destination);
             }
         }
