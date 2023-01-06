@@ -10,7 +10,7 @@ namespace FireEmblem.MapView
 {
     public class MapController : MonoBehaviour
     {
-        [SerializeField] private TileObjectManager tileObjectManager;
+        [SerializeField] private MovementRangeDisplay movementRangeDisplay;
         [SerializeField] private Map map;
         [SerializeField] private UnitStatsDisplay unitStatsDisplay;
 
@@ -47,7 +47,7 @@ namespace FireEmblem.MapView
                     }
                 }
 
-                tileObjectManager.DestroyAll();
+                movementRangeDisplay.Clear();
                 selectedUnit = null;
                 return;
             }
@@ -63,10 +63,10 @@ namespace FireEmblem.MapView
         {
             if (selectedUnit != null)
             {
-                tileObjectManager.ClearMovePath();
+                movementRangeDisplay.ClearMovePath();
                 if (accessibleTiles.ContainsKey(position))
                 {
-                    ShowPathToTile(position);
+                    movementRangeDisplay.ShowPathTo(position);
                 }
             }
         }
@@ -85,10 +85,10 @@ namespace FireEmblem.MapView
                 unitStatsDisplay.DisplayUnit(unit);
             }
             
-            tileObjectManager.DestroyAll();
+            movementRangeDisplay.Clear();
             
             accessibleTiles = movementGenerator.GenerateAccessibleTiles(unit);
-            ShowAccessibleTiles(accessibleTiles);
+            movementRangeDisplay.ShowMovementRange(map.GetPositionOfUnit(unit), accessibleTiles);
         }
 
         private void StartPlayerTurn()
@@ -105,43 +105,6 @@ namespace FireEmblem.MapView
             {
                 var destination = EnemyAi.GetMoveDestination(enemyUnit, map);
                 map.MoveUnit(enemyUnit, destination);
-            }
-        }
-
-        private void ShowAccessibleTiles(Dictionary<MapPosition, AccessibleTile> accessibleTiles)
-        {
-            foreach (var position in accessibleTiles.Keys)
-            {
-                var tile = accessibleTiles[position];
-                
-                switch (tile.Accessibility)
-                {
-                    case TileAccessibility.CanMoveTo:
-                        tileObjectManager.CreateMoveTile(position);
-                        break;
-                    case TileAccessibility.CanAttack:
-                        tileObjectManager.CreateAttackTile(position);
-                        break;
-                }
-            }
-        }
-
-        private void ShowPathToTile(MapPosition targetPosition)
-        {
-            var currentPosition = targetPosition;
-
-            var tilesInPath = new List<MapPosition>();
-
-            var selectedUnitPosition = map.GetPositionOfUnit(selectedUnit);
-            while (currentPosition != null && currentPosition != selectedUnitPosition)
-            {
-                tilesInPath.Add(currentPosition);
-                currentPosition = accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
-            }
-
-            foreach (var tile in tilesInPath)
-            {
-                tileObjectManager.CreateMovePathTile(tile);
             }
         }
     }
