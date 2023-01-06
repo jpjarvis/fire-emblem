@@ -15,7 +15,7 @@ namespace FireEmblem.MapView
         private Tilemap tilemap;
         private Grid grid;
 
-        private Dictionary<MapPosition, BaseUnit> positionsToUnitObject;
+        private Dictionary<MapPosition, UnitObject> positionsToUnitObject;
         private Dictionary<Unit, MapPosition> unitsToPosition;
 
         public IReadOnlyCollection<Unit> Units
@@ -45,7 +45,7 @@ namespace FireEmblem.MapView
                 return;
             }
             
-            var unitObjects = GetComponentsInChildren<BaseUnit>();
+            var unitObjects = GetComponentsInChildren<UnitObject>();
             positionsToUnitObject = unitObjects.ToDictionary(x => x.Position, x => x);
             unitsToPosition = unitObjects.ToDictionary(x => x.Unit, x => x.Position);
         }
