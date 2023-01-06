@@ -18,7 +18,7 @@ namespace FireEmblem.MapView
         private Dictionary<MapPosition, UnitObject> positionsToUnitObject;
         private Dictionary<Unit, MapPosition> unitsToPosition;
 
-        public IReadOnlyCollection<Unit> Units
+        public IEnumerable<Unit> Units
         {
             get
             {
