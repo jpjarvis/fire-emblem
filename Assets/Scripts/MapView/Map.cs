@@ -52,14 +52,8 @@ namespace FireEmblem.MapView
                     selectedUnit.HasActed = true;
                     if (PlayerUnits.All(x => x.HasActed))
                     {
-                        foreach (var enemyUnit in EnemyUnits)
-                        {
-                            var destination = enemyUnit.GetMoveDestination(enemyUnit, PlayerUnits, movementGenerator);
-                            mapGrid.MoveObjectToGridPosition(enemyUnit.gameObject, destination);
-                            
-                        }
-                        
-                        PlayerUnits.ForEach(x => x.HasActed = false);
+                        TakeEnemyTurn();
+                        StartPlayerTurn();
                     }
                 }
 
@@ -72,6 +66,20 @@ namespace FireEmblem.MapView
             if (selectedPlayerUnit && !selectedPlayerUnit.HasActed)
             {
                 SelectUnit(selectedPlayerUnit);
+            }
+        }
+
+        private void StartPlayerTurn()
+        {
+            PlayerUnits.ForEach(x => x.HasActed = false);
+        }
+
+        private void TakeEnemyTurn()
+        {
+            foreach (var enemyUnit in EnemyUnits)
+            {
+                var destination = enemyUnit.GetMoveDestination(enemyUnit, PlayerUnits, movementGenerator);
+                mapGrid.MoveObjectToGridPosition(enemyUnit.gameObject, destination);
             }
         }
 
