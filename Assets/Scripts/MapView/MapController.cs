@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Combat;
@@ -36,9 +37,24 @@ namespace FireEmblem.MapView
             if (selectedUnit != null)
             {
                 var tileIsAccessible = accessibleTiles.TryGetValue(position, out var tile);
-                if (tileIsAccessible && tile is { Accessibility: TileAccessibility.CanMoveTo })
+                if (tileIsAccessible)
                 {
-                    map.MoveUnit(selectedUnit, position);
+                    if (tile is { Accessibility: TileAccessibility.CanMoveTo })
+                    {
+                        map.MoveUnit(selectedUnit, position);
+                    }
+                    else if (tile is { Accessibility: TileAccessibility.CanAttack })
+                    {
+                        var targetUnit = map.GetUnitAt(position);
+                        if (targetUnit != null && targetUnit.Allegiance != Allegiance.Player)
+                        {
+                            map.MoveUnit(selectedUnit, tile.SourceTiles.First());
+                            var combatForecast = CombatForecast.Create(selectedUnit, targetUnit, 1);
+                            var combatResult = Combat.ResolveCombat(combatForecast);
+                            HandleCombatResult(combatResult);
+                        }
+                    }
+                    
                     unitsToMove.Remove(selectedUnit);
                     if (!unitsToMove.Any())
                     {
@@ -68,6 +84,29 @@ namespace FireEmblem.MapView
                 {
                     movementRangeDisplay.ShowPathTo(position);
                 }
+            }
+        }
+
+        private void HandleCombatResult(CombatResult combatResult)
+        {
+            Debug.Log(combatResult.ToText());
+            
+            if (combatResult.Attacker.IsDead())
+            {
+                map.RemoveUnit(combatResult.Attacker);
+            }
+            else
+            {
+                map.UpdateUnit(combatResult.Attacker);
+            }
+
+            if (combatResult.Defender.IsDead())
+            {
+                map.RemoveUnit(combatResult.Defender);
+            }
+            else
+            {
+                map.UpdateUnit(combatResult.Defender);
             }
         }
         

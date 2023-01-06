@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Combat;
@@ -16,7 +17,7 @@ namespace FireEmblem.MapView
         private Grid grid;
 
         private Dictionary<MapPosition, UnitObject> positionsToUnitObject;
-        private Dictionary<Unit, MapPosition> unitsToPosition;
+        private Dictionary<Guid, MapPosition> unitIdsToPosition;
 
         public IEnumerable<Unit> Units
         {
@@ -40,14 +41,14 @@ namespace FireEmblem.MapView
 
         private void EnsureUnitDictionariesAreInitialised()
         {
-            if (positionsToUnitObject != null && unitsToPosition != null)
+            if (positionsToUnitObject != null && unitIdsToPosition != null)
             {
                 return;
             }
             
             var unitObjects = GetComponentsInChildren<UnitObject>();
             positionsToUnitObject = unitObjects.ToDictionary(x => x.Position, x => x);
-            unitsToPosition = unitObjects.ToDictionary(x => x.Unit, x => x.Position);
+            unitIdsToPosition = unitObjects.ToDictionary(x => x.Unit.Id, x => x.Position);
         }
         
         public IMapTile GetTileAt(MapPosition mapPosition)
@@ -71,18 +72,37 @@ namespace FireEmblem.MapView
         [CanBeNull]
         public MapPosition GetPositionOfUnit(Unit unit)
         {
-            return unitsToPosition.GetValueOrDefault(unit);
+            return unitIdsToPosition.GetValueOrDefault(unit.Id);
         }
 
         public void MoveUnit(Unit unit, MapPosition destination)
         {
-            unitsToPosition.Remove(unit, out var startPosition);
-            unitsToPosition.Add(unit, destination);
+            unitIdsToPosition.Remove(unit.Id, out var startPosition);
+            unitIdsToPosition.Add(unit.Id, destination);
 
             positionsToUnitObject.Remove(startPosition, out var unitObject);
             positionsToUnitObject.Add(destination, unitObject);
             
             MoveObjectToGridPosition(unitObject.gameObject, destination);
+        }
+
+        public void UpdateUnit(Unit unit)
+        {
+            var unitPosition = unitIdsToPosition.GetValueOrDefault(unit.Id);
+            if (unitPosition == null)
+            {
+                throw new ArgumentException($"The unit ${unit.Name} with id {unit.Id} does not exist on the map.");
+            }
+
+            var unitObject = positionsToUnitObject.GetValueOrDefault(unitPosition);
+            unitObject.UpdateUnit(unit);
+        }
+        
+        public void RemoveUnit(Unit unit)
+        {
+            unitIdsToPosition.Remove(unit.Id, out var unitPosition);
+            positionsToUnitObject.Remove(unitPosition, out var unitObject);
+            Destroy(unitObject.gameObject);
         }
         
         public void MoveObjectToGridPosition(GameObject objectToMove, MapPosition position)
