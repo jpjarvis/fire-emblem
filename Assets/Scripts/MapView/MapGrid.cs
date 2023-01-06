@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -8,18 +12,22 @@ namespace FireEmblem.MapView
     [RequireComponent(typeof(Grid))]
     public class MapGrid : MonoBehaviour
     {
-        private Tilemap _tilemap;
-        private Grid _grid;
+        private Tilemap tilemap;
+        private Grid grid;
 
+        public IEnumerable<BaseUnit> Units { get; private set; }
+        
         private void Awake()
         {
-            _tilemap = GetComponent<Tilemap>();
-            _grid = GetComponent<Grid>();
+            tilemap = GetComponent<Tilemap>();
+            grid = GetComponent<Grid>();
+            
+            Units = GetComponentsInChildren<BaseUnit>().ToList();
         }
 
         public IMapTile GetTileAt(MapPosition mapPosition)
         {
-            var tile = _tilemap.GetTile<MapTile>(new Vector3Int(mapPosition.X, mapPosition.Y, 0));
+            var tile = tilemap.GetTile<MapTile>(new Vector3Int(mapPosition.X, mapPosition.Y, 0));
 
             if (tile)
             {
@@ -29,10 +37,16 @@ namespace FireEmblem.MapView
             return new EmptyMapTile();
         }
 
+        [CanBeNull]
+        public Unit GetUnitAt(MapPosition mapPosition)
+        {
+            return Units.FirstOrDefault(x => x.Position == mapPosition)?.Unit;
+        }
+
         public void MoveObjectToGridPosition(GameObject objectToMove, MapPosition position)
         {
             objectToMove.transform.position =
-                _grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
+                grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
         }
 
         public GameObject InstantiateAtGridPosition(GameObject prefab, MapPosition position)

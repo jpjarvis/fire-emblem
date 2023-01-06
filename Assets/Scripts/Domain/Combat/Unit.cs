@@ -7,14 +7,16 @@ namespace FireEmblem.Domain.Combat
 {
     public class Unit
     {
-        private readonly IUnitData _unitData;
+        private readonly IUnitData unitData;
         public int MaxHp => Stats.Hp;
         public int Hp { get; }
 
         public IEnumerable<IItem> Inventory { get; }
-        public string Name => _unitData.Name;
-        public IStatBlock Stats => _unitData.Stats;
+        public string Name => unitData.Name;
+        public IStatBlock Stats => unitData.Stats;
         public Weapon Weapon { get; }
+        
+        public Allegiance Allegiance { get; }
         
         public int Attack => Weapon.Data.IsMagic ? Stats.Magic : Stats.Strength + Weapon.Data.Might;
 
@@ -43,17 +45,18 @@ namespace FireEmblem.Domain.Combat
         
         public int CritAvoid => Stats.Luck;
         
-        private Unit(IUnitData unitData, IEnumerable<IItem> inventory, int hp)
+        private Unit(IUnitData unitData, Allegiance allegiance, IEnumerable<IItem> inventory, int hp)
         {
-            _unitData = unitData;
+            this.unitData = unitData;
+            Allegiance = allegiance;
             Inventory = inventory;
             Weapon = Inventory.FirstOrDefault(x => x is Weapon) as Weapon;
             Hp = hp;
         }
 
-        public static Unit Create(IUnitData unitData)
+        public static Unit Create(IUnitData unitData, Allegiance allegiance)
         {
-            return new Unit(unitData, unitData.Inventory.Select(Weapon.Create), unitData.Stats.Hp);
+            return new Unit(unitData, allegiance, unitData.Inventory.Select(Weapon.Create), unitData.Stats.Hp);
         }
 
         public bool CanFollowUp(Unit other)
@@ -63,7 +66,7 @@ namespace FireEmblem.Domain.Combat
 
         public Unit TakeDamage(int damage)
         {
-            return new Unit(_unitData, Inventory, Math.Max(Hp - damage, 0));
+            return new Unit(unitData, Allegiance, Inventory, Math.Max(Hp - damage, 0));
         }
 
         public bool IsDead()

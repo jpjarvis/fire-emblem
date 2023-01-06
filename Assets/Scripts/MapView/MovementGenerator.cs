@@ -13,8 +13,9 @@ namespace FireEmblem.MapView
             this.mapGrid = mapGrid;
         }
 
-        public Dictionary<MapPosition, AccessibleTile> GenerateAccessibleTiles(BaseUnit unit, IEnumerable<BaseUnit> enemyUnits)
+        public Dictionary<MapPosition, AccessibleTile> GenerateAccessibleTiles(BaseUnit unit)
         {
+            var enemyUnits = mapGrid.Units.Where(x => x.Unit.Allegiance != unit.Unit.Allegiance);
             var startPosition = unit.Position;
             var maximumMoveDistance = unit.Unit.Stats.Movement;
             var minAttackRange = unit.Unit.Weapon.Data.MinRange;

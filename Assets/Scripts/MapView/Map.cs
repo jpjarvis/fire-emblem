@@ -11,8 +11,6 @@ namespace FireEmblem.MapView
         [SerializeField] private TileObjectManager tileObjectManager;
         [SerializeField] private MapGrid mapGrid;
         [SerializeField] private UnitStatsDisplay unitStatsDisplay;
-        private List<PlayerUnit> PlayerUnits { get; set; } = new();
-        private List<EnemyUnit> EnemyUnits { get; set; } = new();
 
         private PlayerUnit selectedUnit;
         private Dictionary<MapPosition, AccessibleTile> accessibleTiles;
@@ -20,9 +18,6 @@ namespace FireEmblem.MapView
 
         private void Awake()
         {
-            PlayerUnits = GetComponentsInChildren<PlayerUnit>().ToList();
-            EnemyUnits = GetComponentsInChildren<EnemyUnit>().ToList();
-
             movementGenerator = new MovementGenerator(mapGrid);
         }
         
@@ -37,7 +32,7 @@ namespace FireEmblem.MapView
             
             tileObjectManager.DestroyAll();
             
-            accessibleTiles = movementGenerator.GenerateAccessibleTiles(unit, EnemyUnits);
+            accessibleTiles = movementGenerator.GenerateAccessibleTiles(unit);
             ShowAccessibleTiles(accessibleTiles);
         }
 
@@ -50,7 +45,7 @@ namespace FireEmblem.MapView
                 {
                     mapGrid.MoveObjectToGridPosition(selectedUnit.gameObject, position);
                     selectedUnit.HasActed = true;
-                    if (PlayerUnits.All(x => x.HasActed))
+                    if (mapGrid.Units.OfType<PlayerUnit>().All(x => x.HasActed))
                     {
                         TakeEnemyTurn();
                         StartPlayerTurn();
@@ -62,7 +57,7 @@ namespace FireEmblem.MapView
                 return;
             }
 
-            var selectedPlayerUnit = PlayerUnits.FirstOrDefault(u => u.Position == position);
+            var selectedPlayerUnit = mapGrid.Units.OfType<PlayerUnit>().FirstOrDefault(u => u.Position == position);
             if (selectedPlayerUnit && !selectedPlayerUnit.HasActed)
             {
                 SelectUnit(selectedPlayerUnit);
@@ -71,14 +66,17 @@ namespace FireEmblem.MapView
 
         private void StartPlayerTurn()
         {
-            PlayerUnits.ForEach(x => x.HasActed = false);
+            foreach (var playerUnit in mapGrid.Units.OfType<PlayerUnit>())
+            {
+                playerUnit.HasActed = false;
+            }
         }
 
         private void TakeEnemyTurn()
         {
-            foreach (var enemyUnit in EnemyUnits)
+            foreach (var enemyUnit in mapGrid.Units.OfType<EnemyUnit>())
             {
-                var destination = enemyUnit.GetMoveDestination(PlayerUnits, movementGenerator);
+                var destination = enemyUnit.GetMoveDestination(mapGrid);
                 mapGrid.MoveObjectToGridPosition(enemyUnit.gameObject, destination);
             }
         }

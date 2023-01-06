@@ -9,13 +9,15 @@ namespace FireEmblem.MapView
     {
         [SerializeField] private UnitData unitData;
 
+        protected abstract Allegiance Allegiance { get; }
+        
         public Unit Unit { get; set; }
-
+        
         public MapPosition Position => MapPosition.From3dVector(transform.position);
         
         private void Awake()
         {
-            Unit = Unit.Create(unitData);
+            Unit = Unit.Create(unitData, Allegiance);
         }
     }
 }
