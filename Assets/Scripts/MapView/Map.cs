@@ -26,7 +26,7 @@ namespace FireEmblem.MapView
             movementGenerator = new MovementGenerator(mapGrid);
         }
         
-        private void SelectUnit(BaseUnit unit)
+        private void SelectUnit(PlayerUnit unit)
         {
             selectedUnit = unit;
 
@@ -52,7 +52,14 @@ namespace FireEmblem.MapView
                     selectedUnit.HasActed = true;
                     if (PlayerUnits.All(x => x.HasActed))
                     {
+                        foreach (var enemyUnit in EnemyUnits)
+                        {
+                            var destination = enemyUnit.GetMoveDestination(enemyUnit, PlayerUnits, movementGenerator);
+                            mapGrid.MoveObjectToGridPosition(enemyUnit.gameObject, destination);
+                            
+                        }
                         
+                        PlayerUnits.ForEach(x => x.HasActed = false);
                     }
                 }
 
