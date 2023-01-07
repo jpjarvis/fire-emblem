@@ -10,9 +10,18 @@ namespace FireEmblem.MapView
     {
         [SerializeField] private GameObject playerUnitPrefab;
         [SerializeField] private GameObject enemyUnitPrefab;
+        [SerializeField] private Map map;
         [SerializeField] private MapGrid mapGrid;
         
         private readonly Dictionary<Guid, GameObject> unitObjects = new();
+
+        private void Start()
+        {
+            foreach (var unit in map.Units)
+            {
+                CreateUnitObject(unit, map.GetPositionOfUnit(unit));
+            }
+        }
 
         public void CreateUnitObject(Unit unit, MapPosition mapPosition)
         {

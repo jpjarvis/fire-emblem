@@ -13,6 +13,7 @@ namespace FireEmblem.MapView
         [SerializeField] private MovementRangeDisplay movementRangeDisplay;
         [SerializeField] private Map map;
         [SerializeField] private UnitStatsDisplay unitStatsDisplay;
+        [SerializeField] private UnitObjectManager unitObjectManager;
 
         [CanBeNull] private Unit selectedUnit;
 
@@ -38,6 +39,7 @@ namespace FireEmblem.MapView
                     switch (tile.Accessibility)
                     {
                         case TileAccessibility.CanMoveTo:
+                            unitObjectManager.MoveUnitObject(selectedUnit, position);
                             map.MoveUnit(selectedUnit, position);
                             break;
                         case TileAccessibility.CanAttack:
@@ -45,6 +47,7 @@ namespace FireEmblem.MapView
                             var targetUnit = map.GetUnitAt(position);
                             if (targetUnit != null && targetUnit.Allegiance != Allegiance.Player)
                             {
+                                unitObjectManager.MoveUnitObject(selectedUnit, tile.SourceTiles.First());
                                 map.MoveUnit(selectedUnit, tile.SourceTiles.First());
                                 InitiateCombat(selectedUnit, targetUnit);
                             }
@@ -96,6 +99,7 @@ namespace FireEmblem.MapView
             if (combatResult.Attacker.IsDead())
             {
                 map.RemoveUnit(combatResult.Attacker);
+                unitObjectManager.RemoveUnitObject(combatResult.Attacker);
             }
             else
             {
@@ -105,6 +109,7 @@ namespace FireEmblem.MapView
             if (combatResult.Defender.IsDead())
             {
                 map.RemoveUnit(combatResult.Defender);
+                unitObjectManager.RemoveUnitObject(combatResult.Defender);
             }
             else
             {
@@ -148,6 +153,7 @@ namespace FireEmblem.MapView
                 { 
                     case MoveAndAttackAction a:
                         map.MoveUnit(enemyUnit, a.PositionToMoveTo);
+                        unitObjectManager.MoveUnitObject(enemyUnit, a.PositionToMoveTo);
                         InitiateCombat(enemyUnit, a.UnitToAttack);
                         break;
                     case NoAction:

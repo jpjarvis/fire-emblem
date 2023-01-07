@@ -12,8 +12,6 @@ namespace FireEmblem.MapView
     [RequireComponent(typeof(Tilemap))]
     public class Map : MonoBehaviour
     {
-        [SerializeField] private UnitObjectManager unitObjectManager;
-        
         private Tilemap tilemap;
         
         private Dictionary<MapPosition, Unit> positionsToUnit;
@@ -50,7 +48,6 @@ namespace FireEmblem.MapView
             unitIdsToPosition = unitObjects.ToDictionary(x => x.Unit.Id, x => x.Position);
             foreach (var unitObject in unitObjects)
             {
-                unitObjectManager.CreateUnitObject(unitObject.Unit, unitObject.Position);
                 Destroy(unitObject.gameObject);
             }
         }
@@ -86,8 +83,6 @@ namespace FireEmblem.MapView
 
             positionsToUnit.Remove(startPosition, out _);
             positionsToUnit.Add(destination, unit);
-            
-            unitObjectManager.MoveUnitObject(unit, destination);
         }
 
         public void UpdateUnit(Unit unit)
@@ -105,7 +100,6 @@ namespace FireEmblem.MapView
         {
             unitIdsToPosition.Remove(unit.Id, out var unitPosition);
             positionsToUnit.Remove(unitPosition, out _);
-            unitObjectManager.RemoveUnitObject(unit);
         }
 
         private class EmptyMapTile : IMapTile
