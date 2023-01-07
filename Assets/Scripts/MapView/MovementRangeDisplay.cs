@@ -14,6 +14,7 @@ namespace FireEmblem.MapView
         [SerializeField] private GameObject attackTilePrefab;
         [SerializeField] private GameObject movePathTilePrefab;
         [SerializeField] private Map map;
+        [SerializeField] private MapGrid grid;
         
         private readonly List<GameObject> activeTileObjects = new();
         private readonly List<GameObject> activeMovePathTiles = new();
@@ -107,13 +108,13 @@ namespace FireEmblem.MapView
 
         private void CreateMovePathTile(MapPosition mapPosition)
         {
-            var tileObject = map.InstantiateAtGridPosition(movePathTilePrefab, mapPosition);
+            var tileObject = grid.InstantiateAtGridPosition(movePathTilePrefab, mapPosition);
             activeMovePathTiles.Add(tileObject);
         }
 
         private void CreateTile(GameObject prefab, MapPosition mapPosition)
         {
-            var tileObject = map.InstantiateAtGridPosition(prefab, mapPosition);
+            var tileObject = grid.InstantiateAtGridPosition(prefab, mapPosition);
             activeTileObjects.Add(tileObject);
         }
     }

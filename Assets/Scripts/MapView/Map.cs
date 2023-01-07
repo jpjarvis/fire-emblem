@@ -10,11 +10,11 @@ using UnityEngine.Tilemaps;
 namespace FireEmblem.MapView
 {
     [RequireComponent(typeof(Tilemap))]
-    [RequireComponent(typeof(Grid))]
+    [RequireComponent(typeof(MapGrid))]
     public class Map : MonoBehaviour
     {
         private Tilemap tilemap;
-        private Grid grid;
+        private MapGrid grid;
 
         private Dictionary<MapPosition, UnitObject> positionsToUnitObject;
         private Dictionary<Guid, MapPosition> unitIdsToPosition;
@@ -31,7 +31,7 @@ namespace FireEmblem.MapView
         private void Awake()
         {
             tilemap = GetComponent<Tilemap>();
-            grid = GetComponent<Grid>();
+            grid = GetComponent<MapGrid>();
         }
 
         private void Start()
@@ -83,7 +83,7 @@ namespace FireEmblem.MapView
             positionsToUnitObject.Remove(startPosition, out var unitObject);
             positionsToUnitObject.Add(destination, unitObject);
             
-            MoveObjectToGridPosition(unitObject.gameObject, destination);
+            grid.MoveObjectToGridPosition(unitObject.gameObject, destination);
         }
 
         public void UpdateUnit(Unit unit)
@@ -103,19 +103,6 @@ namespace FireEmblem.MapView
             unitIdsToPosition.Remove(unit.Id, out var unitPosition);
             positionsToUnitObject.Remove(unitPosition, out var unitObject);
             Destroy(unitObject.gameObject);
-        }
-        
-        public void MoveObjectToGridPosition(GameObject objectToMove, MapPosition position)
-        {
-            objectToMove.transform.position =
-                grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
-        }
-
-        public GameObject InstantiateAtGridPosition(GameObject prefab, MapPosition position)
-        {
-            var instantiatedObject = Instantiate(prefab, transform);
-            MoveObjectToGridPosition(instantiatedObject, position);
-            return instantiatedObject;
         }
 
         private class EmptyMapTile : IMapTile
