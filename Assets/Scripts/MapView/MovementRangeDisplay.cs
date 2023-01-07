@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -16,12 +18,20 @@ namespace FireEmblem.MapView
         private readonly List<GameObject> activeTileObjects = new();
         private readonly List<GameObject> activeMovePathTiles = new();
         [CanBeNull] private MapPosition shownSourceTile;
-        [CanBeNull] private Dictionary<MapPosition, AccessibleTile> shownAccessibleTiles;
+        private Dictionary<MapPosition, AccessibleTile> shownAccessibleTiles;
+
+        private MovementGenerator movementGenerator;
         
-        public void ShowMovementRange(MapPosition sourceTile, Dictionary<MapPosition, AccessibleTile> accessibleTiles)
+        private void Awake()
         {
-            shownSourceTile = sourceTile;
-            shownAccessibleTiles = accessibleTiles;
+            movementGenerator = new MovementGenerator(map);
+            shownAccessibleTiles = new Dictionary<MapPosition, AccessibleTile>();
+        }
+
+        public void ShowMovementRange(Unit unit)
+        {
+            shownSourceTile = map.GetPositionOfUnit(unit);
+            var accessibleTiles = movementGenerator.GenerateAccessibleTiles(unit);
             
             foreach (var position in accessibleTiles.Keys)
             {
@@ -37,10 +47,17 @@ namespace FireEmblem.MapView
                         break;
                 }
             }
+
+            shownAccessibleTiles = accessibleTiles;
         }
 
         public void ShowPathTo(MapPosition targetPosition)
         {
+            if (!shownAccessibleTiles.TryGetValue(targetPosition, out _))
+            {
+                return;
+            }
+            
             var currentPosition = targetPosition;
 
             var tilesInPath = new List<MapPosition>();
@@ -56,6 +73,12 @@ namespace FireEmblem.MapView
                 CreateMovePathTile(tile);
             }
         }
+
+        [CanBeNull]
+        public AccessibleTile GetAccessibleTile(MapPosition position)
+        {
+            return shownAccessibleTiles?.GetValueOrDefault(position);
+        }
         
         public void Clear()
         {
@@ -63,7 +86,7 @@ namespace FireEmblem.MapView
             activeTileObjects.ForEach(Destroy);
             activeTileObjects.Clear();
             shownSourceTile = null;
-            shownAccessibleTiles = null;
+            shownAccessibleTiles.Clear();
         }
 
         public void ClearMovePath()
