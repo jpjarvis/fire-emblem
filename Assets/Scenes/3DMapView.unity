@@ -537,6 +537,7 @@ GameObject:
   - component: {fileID: 1405689644}
   - component: {fileID: 1405689646}
   - component: {fileID: 1405689647}
+  - component: {fileID: 1405689648}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -2205,6 +2206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f6fff503c0446c9b153c6c18d165c35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unitObjectManager: {fileID: 1405689648}
 --- !u!114 &1405689647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2217,6 +2219,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca765a12e1d49ed878230385db46ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1405689648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1405689633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d17f10ac01d4a98bcc00e4b1664df25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerUnitPrefab: {fileID: 5859989161965117429, guid: f1aa35a0b3107f9078ad7dbff60b3368, type: 3}
+  enemyUnitPrefab: {fileID: 5859989161965117429, guid: f1aa35a0b3107f9078ad7dbff60b3368, type: 3}
+  mapGrid: {fileID: 1405689647}
 --- !u!1 &1478919366
 GameObject:
   m_ObjectHideFlags: 0

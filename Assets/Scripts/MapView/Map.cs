@@ -10,13 +10,13 @@ using UnityEngine.Tilemaps;
 namespace FireEmblem.MapView
 {
     [RequireComponent(typeof(Tilemap))]
-    [RequireComponent(typeof(MapGrid))]
     public class Map : MonoBehaviour
     {
+        [SerializeField] private UnitObjectManager unitObjectManager;
+        
         private Tilemap tilemap;
-        private MapGrid grid;
-
-        private Dictionary<MapPosition, UnitObject> positionsToUnitObject;
+        
+        private Dictionary<MapPosition, Unit> positionsToUnit;
         private Dictionary<Guid, MapPosition> unitIdsToPosition;
 
         public IEnumerable<Unit> Units
@@ -24,14 +24,13 @@ namespace FireEmblem.MapView
             get
             {
                 EnsureUnitDictionariesAreInitialised();
-                return positionsToUnitObject?.Values.Select(x => x.Unit).ToList();
+                return positionsToUnit.Values.ToList();
             }
         }
 
         private void Awake()
         {
             tilemap = GetComponent<Tilemap>();
-            grid = GetComponent<MapGrid>();
         }
 
         private void Start()
@@ -41,14 +40,19 @@ namespace FireEmblem.MapView
 
         private void EnsureUnitDictionariesAreInitialised()
         {
-            if (positionsToUnitObject != null && unitIdsToPosition != null)
+            if (positionsToUnit != null && unitIdsToPosition != null)
             {
                 return;
             }
             
             var unitObjects = GetComponentsInChildren<UnitObject>();
-            positionsToUnitObject = unitObjects.ToDictionary(x => x.Position, x => x);
+            positionsToUnit = unitObjects.ToDictionary(x => x.Position, x => x.Unit);
             unitIdsToPosition = unitObjects.ToDictionary(x => x.Unit.Id, x => x.Position);
+            foreach (var unitObject in unitObjects)
+            {
+                unitObjectManager.CreateUnitObject(unitObject.Unit, unitObject.Position);
+                Destroy(unitObject.gameObject);
+            }
         }
         
         public IMapTile GetTileAt(MapPosition mapPosition)
@@ -66,7 +70,7 @@ namespace FireEmblem.MapView
         [CanBeNull]
         public Unit GetUnitAt(MapPosition mapPosition)
         {
-            return positionsToUnitObject.GetValueOrDefault(mapPosition)?.Unit;
+            return positionsToUnit.GetValueOrDefault(mapPosition);
         }
 
         [CanBeNull]
@@ -80,10 +84,10 @@ namespace FireEmblem.MapView
             unitIdsToPosition.Remove(unit.Id, out var startPosition);
             unitIdsToPosition.Add(unit.Id, destination);
 
-            positionsToUnitObject.Remove(startPosition, out var unitObject);
-            positionsToUnitObject.Add(destination, unitObject);
+            positionsToUnit.Remove(startPosition, out _);
+            positionsToUnit.Add(destination, unit);
             
-            grid.MoveObjectToGridPosition(unitObject.gameObject, destination);
+            unitObjectManager.MoveUnitObject(unit, destination);
         }
 
         public void UpdateUnit(Unit unit)
@@ -94,15 +98,14 @@ namespace FireEmblem.MapView
                 throw new ArgumentException($"The unit ${unit.Name} with id {unit.Id} does not exist on the map.");
             }
 
-            var unitObject = positionsToUnitObject.GetValueOrDefault(unitPosition);
-            unitObject.UpdateUnit(unit);
+            positionsToUnit[unitPosition] = unit;
         }
         
         public void RemoveUnit(Unit unit)
         {
             unitIdsToPosition.Remove(unit.Id, out var unitPosition);
-            positionsToUnitObject.Remove(unitPosition, out var unitObject);
-            Destroy(unitObject.gameObject);
+            positionsToUnit.Remove(unitPosition, out _);
+            unitObjectManager.RemoveUnitObject(unit);
         }
 
         private class EmptyMapTile : IMapTile
