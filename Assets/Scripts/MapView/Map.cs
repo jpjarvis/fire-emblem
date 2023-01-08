@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
+using FireEmblem.Domain.Map;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -10,7 +11,7 @@ using UnityEngine.Tilemaps;
 namespace FireEmblem.MapView
 {
     [RequireComponent(typeof(Tilemap))]
-    public class Map : MonoBehaviour
+    public class Map : MonoBehaviour, IMap
     {
         private Tilemap tilemap;
         

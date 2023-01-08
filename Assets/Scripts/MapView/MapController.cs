@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using FireEmblem.Domain.Ai;
 using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
+using FireEmblem.Domain.Map;
 using FireEmblem.MapView.UI;
 using JetBrains.Annotations;
 using UnityEngine;

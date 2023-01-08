@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Data;
+using FireEmblem.Domain.Map;
 using JetBrains.Annotations;
 using UnityEngine;
 

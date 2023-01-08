@@ -4,7 +4,7 @@ using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
 using JetBrains.Annotations;
 
-namespace FireEmblem.MapView
+namespace FireEmblem.Domain.Map
 {
     public class MovementRange
     {
@@ -49,7 +49,7 @@ namespace FireEmblem.MapView
             return tilesInPath;
         }
         
-        public static MovementRange Generate(Unit unit, Map map)
+        public static MovementRange Generate(Unit unit, IMap map)
         {
             var startPosition = map.GetPositionOfUnit(unit);
             if (startPosition == null)
@@ -143,7 +143,7 @@ namespace FireEmblem.MapView
             }
         }
 
-        private static bool CanMoveThrough(Map map, MapPosition mapPosition, IEnumerable<MapPosition> enemyUnitPositions)
+        private static bool CanMoveThrough(IMap map, MapPosition mapPosition, IEnumerable<MapPosition> enemyUnitPositions)
         {
             return !enemyUnitPositions.Contains(mapPosition) &&
                    map.GetTileAt(mapPosition).IsTraversable;

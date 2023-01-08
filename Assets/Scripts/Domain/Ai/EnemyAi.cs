@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
+using FireEmblem.Domain.Map;
 
-namespace FireEmblem.MapView
+namespace FireEmblem.Domain.Ai
 {
     public static class EnemyAi
     {
-        public static IEnemyAction GetAction(Unit unit, Map map)
+        public static IEnemyAction GetAction(Unit unit, IMap map)
         {
             var movementRange = MovementRange.Generate(unit, map);
             var attackTiles = movementRange

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 
 namespace FireEmblem.MapView

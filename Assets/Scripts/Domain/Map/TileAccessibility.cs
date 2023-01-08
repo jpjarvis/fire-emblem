@@ -1,4 +1,4 @@
-namespace FireEmblem.MapView
+namespace FireEmblem.Domain.Map
 {
     public enum TileAccessibility
     {

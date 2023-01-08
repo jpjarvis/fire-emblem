@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using FireEmblem.Domain.Data;
 
-namespace FireEmblem.MapView
+namespace FireEmblem.Domain.Map
 {
     public class AccessibleTile
     {
