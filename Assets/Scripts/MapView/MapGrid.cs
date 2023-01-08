@@ -12,11 +12,15 @@ namespace FireEmblem.MapView
         {
             grid = GetComponent<Grid>();
         }
+
+        public Vector3 GetCoordinatesOfMapPosition(MapPosition position)
+        {
+            return grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
+        }
         
         public void MoveObjectToGridPosition(GameObject objectToMove, MapPosition position)
         {
-            objectToMove.transform.position =
-                grid.GetCellCenterLocal(new Vector3Int(position.X, position.Y, 0));
+            objectToMove.transform.position = GetCoordinatesOfMapPosition(position);
         }
 
         public GameObject InstantiateAtGridPosition(GameObject prefab, MapPosition position)

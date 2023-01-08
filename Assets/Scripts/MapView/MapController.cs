@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Combat;
@@ -33,38 +34,7 @@ namespace FireEmblem.MapView
         {
             if (selectedUnit != null)
             {
-                var tile = movementRangeDisplay.GetAccessibleTile(position);
-                if (tile != null)
-                {
-                    switch (tile.Accessibility)
-                    {
-                        case TileAccessibility.CanMoveTo:
-                            unitObjectManager.MoveUnitObject(selectedUnit, position);
-                            map.MoveUnit(selectedUnit, position);
-                            break;
-                        case TileAccessibility.CanAttack:
-                        {
-                            var targetUnit = map.GetUnitAt(position);
-                            if (targetUnit != null && targetUnit.Allegiance != Allegiance.Player)
-                            {
-                                unitObjectManager.MoveUnitObject(selectedUnit, tile.SourceTiles.First());
-                                map.MoveUnit(selectedUnit, tile.SourceTiles.First());
-                                InitiateCombat(selectedUnit, targetUnit);
-                            }
-
-                            break;
-                        }
-                    }
-                    
-                    unitsToMove.Remove(selectedUnit);
-                    if (!unitsToMove.Any())
-                    {
-                        TakeEnemyTurn();
-                        StartPlayerTurn();
-                    }
-                }
-
-                movementRangeDisplay.Clear();
+                StartCoroutine(MoveUnit(selectedUnit, position));
                 selectedUnit = null;
                 return;
             }
@@ -74,6 +44,44 @@ namespace FireEmblem.MapView
             {
                 SelectUnit(selectedPlayerUnit);
             }
+        }
+
+        private IEnumerator MoveUnit(Unit unit, MapPosition position)
+        {
+            var tile = movementRangeDisplay.GetAccessibleTile(position);
+            movementRangeDisplay.Clear();
+            if (tile != null)
+            {
+                switch (tile.Accessibility)
+                {
+                    case TileAccessibility.CanMoveTo:
+                        yield return unitObjectManager.MoveUnitObject(unit, movementRangeDisplay.GetMovePath());
+                        map.MoveUnit(unit, position);
+                        break;
+                    case TileAccessibility.CanAttack:
+                    {
+                        var targetUnit = map.GetUnitAt(position);
+                        if (targetUnit != null && targetUnit.Allegiance != Allegiance.Player)
+                        {
+                            yield return unitObjectManager.MoveUnitObject(unit,
+                                movementRangeDisplay.GetMovePath());
+                            map.MoveUnit(unit, tile.SourceTiles.First());
+                            InitiateCombat(unit, targetUnit);
+                        }
+
+                        break;
+                    }
+                }
+
+                unitsToMove.Remove(unit);
+                if (!unitsToMove.Any())
+                {
+                    yield return TakeEnemyTurn();
+                    StartPlayerTurn();
+                }
+            }
+            
+            yield return null;
         }
 
         private void InitiateCombat(Unit attacker, Unit defender)
@@ -132,7 +140,7 @@ namespace FireEmblem.MapView
             }
             
             movementRangeDisplay.Clear();
-            movementRangeDisplay.ShowMovementRange(unit);
+            movementRangeDisplay.ShowMovementRange(MovementGenerator.GetMovementRange(unit, map));
         }
 
         private void StartPlayerTurn()
@@ -143,7 +151,7 @@ namespace FireEmblem.MapView
             }
         }
 
-        private void TakeEnemyTurn()
+        private IEnumerator TakeEnemyTurn()
         {
             foreach (var enemyUnit in map.Units.Where(x => x.Allegiance == Allegiance.Enemy))
             {
@@ -152,8 +160,8 @@ namespace FireEmblem.MapView
                 switch (enemyAction)
                 { 
                     case MoveAndAttackAction a:
-                        map.MoveUnit(enemyUnit, a.PositionToMoveTo);
-                        unitObjectManager.MoveUnitObject(enemyUnit, a.PositionToMoveTo);
+                        yield return unitObjectManager.MoveUnitObject(enemyUnit, a.MovementPath);
+                        map.MoveUnit(enemyUnit, a.MovementPath.Last());
                         InitiateCombat(enemyUnit, a.UnitToAttack);
                         break;
                     case NoAction:

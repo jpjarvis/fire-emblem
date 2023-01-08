@@ -2,29 +2,23 @@ using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
+using JetBrains.Annotations;
 
 namespace FireEmblem.MapView
 {
-    public class MovementGenerator
+    public static class MovementGenerator
     {
-        private readonly Map map;
-
-        public MovementGenerator(Map map)
-        {
-            this.map = map;
-        }
-
-        public Dictionary<MapPosition, AccessibleTile> GenerateAccessibleTiles(Unit unit)
+        public static MovementRange GetMovementRange(Unit unit, Map map)
         {
             var startPosition = map.GetPositionOfUnit(unit);
             if (startPosition == null)
             {
-                return new Dictionary<MapPosition, AccessibleTile>();
+                return new MovementRange(null, new List<AccessibleTile>());
             }
-            
+
             var enemyUnitPositions = map.Units
                 .Where(x => x.Allegiance != unit.Allegiance)
-                .Select(x => map.GetPositionOfUnit(x));
+                .Select(map.GetPositionOfUnit);
 
             var maximumMoveDistance = unit.Stats.Movement;
             var minAttackRange = unit.Weapon.Data.MinRange;
@@ -42,7 +36,7 @@ namespace FireEmblem.MapView
                 foreach (var sourceTile in workingTiles)
                 {
                     foreach (var tile in TilesInRange(sourceTile, 1, 1).Where(tileToCheck =>
-                                 CanMoveThrough(tileToCheck, enemyUnitPositions) && tileToCheck != startPosition))
+                                 CanMoveThrough(map, tileToCheck, enemyUnitPositions) && tileToCheck != startPosition))
                     {
                         moveableTiles.Add(tile);
                         newWorkingTiles.Add(tile);
@@ -79,12 +73,11 @@ namespace FireEmblem.MapView
                 }
             }
 
-            var moveableTilesDictionary = moveableTiles.ToDictionary(t => t,
-                t => new AccessibleTile(TileAccessibility.CanMoveTo, new[] { movementSourceTiles[t] }));
-            var attackableTilesDictionary = attackableTiles.ToDictionary(t => t,
-                t => new AccessibleTile(TileAccessibility.CanAttack, attackSourceTiles[t]));
-
-            return moveableTilesDictionary.Concat(attackableTilesDictionary).ToDictionary(kv => kv.Key, kv => kv.Value);
+            var accessibleTiles = moveableTiles.Select(
+                    t => new AccessibleTile(t, TileAccessibility.CanMoveTo, new[] { movementSourceTiles[t] }))
+                .Concat(attackableTiles.Select(t =>
+                    new AccessibleTile(t, TileAccessibility.CanAttack, attackSourceTiles[t])));
+            return new MovementRange(startPosition, accessibleTiles);
         }
 
         private static IEnumerable<MapPosition> TilesInRange(MapPosition tile, int minRange, int maxRange)
@@ -109,7 +102,7 @@ namespace FireEmblem.MapView
             }
         }
 
-        private bool CanMoveThrough(MapPosition mapPosition, IEnumerable<MapPosition> enemyUnitPositions)
+        private static bool CanMoveThrough(Map map, MapPosition mapPosition, IEnumerable<MapPosition> enemyUnitPositions)
         {
             return !enemyUnitPositions.Contains(mapPosition) &&
                    map.GetTileAt(mapPosition).IsTraversable;
@@ -118,12 +111,15 @@ namespace FireEmblem.MapView
 
     public class AccessibleTile
     {
-        public AccessibleTile(TileAccessibility tileAccessibility, IEnumerable<MapPosition> sourceTiles)
+        public AccessibleTile(MapPosition position, TileAccessibility tileAccessibility,
+            IEnumerable<MapPosition> sourceTiles)
         {
+            Position = position;
             Accessibility = tileAccessibility;
             SourceTiles = sourceTiles;
         }
 
+        public MapPosition Position { get; }
         public TileAccessibility Accessibility { get; }
 
         public IEnumerable<MapPosition> SourceTiles { get; }
@@ -134,5 +130,49 @@ namespace FireEmblem.MapView
         Inaccessible,
         CanMoveTo,
         CanAttack
+    }
+
+    public class MovementRange
+    {
+        private readonly MapPosition sourcePosition;
+        private readonly Dictionary<MapPosition, AccessibleTile> accessibleTiles;
+
+        public MovementRange(MapPosition sourcePosition, IEnumerable<AccessibleTile> accessibleTiles)
+        {
+            this.sourcePosition = sourcePosition;
+            this.accessibleTiles = accessibleTiles.ToDictionary(x => x.Position, x => x);
+        }
+
+        [CanBeNull]
+        public AccessibleTile GetAccessibleTile(MapPosition mapPosition)
+        {
+            return accessibleTiles.GetValueOrDefault(mapPosition);
+        }
+        
+        public IEnumerable<AccessibleTile> GetAllAccessibleTiles()
+        {
+            return accessibleTiles.Values;
+        }
+
+        public IEnumerable<MapPosition> GetPathTo(MapPosition position)
+        {
+            var currentPosition = position;
+            var targetTile = GetAccessibleTile(position);
+            if (targetTile?.Accessibility == TileAccessibility.CanAttack)
+            {
+                currentPosition = targetTile.SourceTiles.FirstOrDefault();
+            }
+
+            var tilesInPath = new List<MapPosition>();
+
+            while (currentPosition != null && currentPosition != sourcePosition)
+            {
+                tilesInPath.Add(currentPosition);
+                currentPosition = accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
+            }
+
+            tilesInPath.Reverse();
+            return tilesInPath;
+        }
     }
 }

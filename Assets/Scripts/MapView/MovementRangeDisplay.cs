@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -18,76 +16,67 @@ namespace FireEmblem.MapView
         
         private readonly List<GameObject> activeTileObjects = new();
         private readonly List<GameObject> activeMovePathTiles = new();
-        [CanBeNull] private MapPosition shownSourceTile;
-        private Dictionary<MapPosition, AccessibleTile> shownAccessibleTiles;
-
-        private MovementGenerator movementGenerator;
+        [CanBeNull] private MovementRange shownMovementRange;
+        private IEnumerable<MapPosition> shownMovePath;
         
         private void Awake()
         {
-            movementGenerator = new MovementGenerator(map);
-            shownAccessibleTiles = new Dictionary<MapPosition, AccessibleTile>();
+            shownMovePath = new List<MapPosition>();
         }
 
-        public void ShowMovementRange(Unit unit)
+        public void ShowMovementRange(MovementRange movementRange)
         {
-            shownSourceTile = map.GetPositionOfUnit(unit);
-            var accessibleTiles = movementGenerator.GenerateAccessibleTiles(unit);
-            
-            foreach (var position in accessibleTiles.Keys)
+            foreach (var tile in movementRange.GetAllAccessibleTiles())
             {
-                var tile = accessibleTiles[position];
-                
                 switch (tile.Accessibility)
                 {
                     case TileAccessibility.CanMoveTo:
-                        CreateMoveTile(position);
+                        CreateMoveTile(tile.Position);
                         break;
                     case TileAccessibility.CanAttack:
-                        CreateAttackTile(position);
+                        CreateAttackTile(tile.Position);
                         break;
                 }
             }
 
-            shownAccessibleTiles = accessibleTiles;
+            shownMovementRange = movementRange;
         }
 
         public void ShowPathTo(MapPosition targetPosition)
         {
-            if (!shownAccessibleTiles.TryGetValue(targetPosition, out _))
+            var accessibleTile = shownMovementRange?.GetAccessibleTile(targetPosition);
+            if (accessibleTile == null)
             {
                 return;
             }
             
-            var currentPosition = targetPosition;
-
-            var tilesInPath = new List<MapPosition>();
-            
-            while (currentPosition != null && currentPosition != shownSourceTile)
-            {
-                tilesInPath.Add(currentPosition);
-                currentPosition = shownAccessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
-            }
+            var tilesInPath = shownMovementRange.GetPathTo(targetPosition).ToList();
 
             foreach (var tile in tilesInPath)
             {
                 CreateMovePathTile(tile);
             }
+            
+            shownMovePath = tilesInPath;
         }
-
+        
         [CanBeNull]
         public AccessibleTile GetAccessibleTile(MapPosition position)
         {
-            return shownAccessibleTiles?.GetValueOrDefault(position);
+            return shownMovementRange?.GetAccessibleTile(position);
         }
-        
+
+        public IEnumerable<MapPosition> GetMovePath()
+        {
+            return shownMovePath;
+        }
+
         public void Clear()
         {
             ClearMovePath();
             activeTileObjects.ForEach(Destroy);
             activeTileObjects.Clear();
-            shownSourceTile = null;
-            shownAccessibleTiles.Clear();
+            shownMovementRange = null;
         }
 
         public void ClearMovePath()

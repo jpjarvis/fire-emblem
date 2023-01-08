@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
@@ -8,13 +9,14 @@ namespace FireEmblem.MapView
     {
         public static IEnemyAction GetAction(Unit unit, Map map)
         {
-            var movementGenerator = new MovementGenerator(map);
-            var attackTiles = movementGenerator.GenerateAccessibleTiles(unit)
-                .Where(x => x.Value.Accessibility == TileAccessibility.CanAttack);
+            var movementRange = MovementGenerator.GetMovementRange(unit, map);
+            var attackTiles = movementRange
+                .GetAllAccessibleTiles()
+                .Where(x => x.Accessibility == TileAccessibility.CanAttack);
 
             var tileToAttack = attackTiles.FirstOrDefault(x =>
             {
-                var targetUnit = map.GetUnitAt(x.Key);
+                var targetUnit = map.GetUnitAt(x.Position);
 
                 if (targetUnit != null)
                 {
@@ -24,9 +26,11 @@ namespace FireEmblem.MapView
                 return false;
             });
 
-            if (tileToAttack.Value != null)
+            if (tileToAttack != null)
             {
-                return new MoveAndAttackAction(tileToAttack.Value.SourceTiles.FirstOrDefault(), map.GetUnitAt(tileToAttack.Key));
+                return new MoveAndAttackAction(
+                    movementRange.GetPathTo(tileToAttack.Position), 
+                    map.GetUnitAt(tileToAttack.Position));
             }
 
             return new NoAction();
@@ -39,7 +43,7 @@ namespace FireEmblem.MapView
     {
     }
 
-    public record MoveAndAttackAction(MapPosition PositionToMoveTo, Unit UnitToAttack) : IEnemyAction;
+    public record MoveAndAttackAction(IEnumerable<MapPosition> MovementPath, Unit UnitToAttack) : IEnemyAction;
 
     public record NoAction : IEnemyAction;
 }

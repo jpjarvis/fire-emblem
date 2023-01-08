@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using FireEmblem.Domain.Combat;
 using FireEmblem.Domain.Data;
+using UnityEditor.Tilemaps;
 using UnityEngine;
 
 namespace FireEmblem.MapView
@@ -28,14 +30,33 @@ namespace FireEmblem.MapView
             unitObjects.Add(unit.Id, InstantiateUnitObject(unit, mapPosition));
         }
 
-        public void MoveUnitObject(Unit unit, MapPosition mapPosition)
+        public IEnumerator MoveUnitObject(Unit unit, IEnumerable<MapPosition> path)
         {
             if (unitObjects.TryGetValue(unit.Id, out var unitObject))
             {
-                mapGrid.MoveObjectToGridPosition(unitObject, mapPosition);
+                foreach (var position in path)
+                {
+                    var destination = mapGrid.GetCoordinatesOfMapPosition(position);
+                    yield return MoveTo(unitObject, destination);
+                }
+            }
+
+            yield return null;
+        }
+
+        private static IEnumerator MoveTo(GameObject objectToMove, Vector3 destination)
+        {
+            var t = 0f;
+            var startPosition = objectToMove.transform.position;
+            var duration = 0.2f;
+            while (t < duration)
+            {
+                objectToMove.transform.position = Vector3.Lerp(startPosition, destination, t / duration);
+                t += Time.deltaTime;
+                yield return null;
             }
         }
-        
+
         public void RemoveUnitObject(Unit unit)
         {
             if (unitObjects.Remove(unit.Id, out var unitObject))
