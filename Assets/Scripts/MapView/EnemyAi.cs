@@ -9,7 +9,7 @@ namespace FireEmblem.MapView
     {
         public static IEnemyAction GetAction(Unit unit, Map map)
         {
-            var movementRange = MovementGenerator.GetMovementRange(unit, map);
+            var movementRange = MovementRange.Generate(unit, map);
             var attackTiles = movementRange
                 .GetAllAccessibleTiles()
                 .Where(x => x.Accessibility == TileAccessibility.CanAttack);

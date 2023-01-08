@@ -6,9 +6,50 @@ using JetBrains.Annotations;
 
 namespace FireEmblem.MapView
 {
-    public static class MovementGenerator
+    public class MovementRange
     {
-        public static MovementRange GetMovementRange(Unit unit, Map map)
+        private readonly MapPosition sourcePosition;
+        private readonly Dictionary<MapPosition, AccessibleTile> accessibleTiles;
+
+        private MovementRange(MapPosition sourcePosition, IEnumerable<AccessibleTile> accessibleTiles)
+        {
+            this.sourcePosition = sourcePosition;
+            this.accessibleTiles = accessibleTiles.ToDictionary(x => x.Position, x => x);
+        }
+
+        [CanBeNull]
+        public AccessibleTile GetAccessibleTile(MapPosition mapPosition)
+        {
+            return accessibleTiles.GetValueOrDefault(mapPosition);
+        }
+        
+        public IEnumerable<AccessibleTile> GetAllAccessibleTiles()
+        {
+            return accessibleTiles.Values;
+        }
+
+        public IEnumerable<MapPosition> GetPathTo(MapPosition position)
+        {
+            var currentPosition = position;
+            var targetTile = GetAccessibleTile(position);
+            if (targetTile?.Accessibility == TileAccessibility.CanAttack)
+            {
+                currentPosition = targetTile.SourceTiles.FirstOrDefault();
+            }
+
+            var tilesInPath = new List<MapPosition>();
+
+            while (currentPosition != null && currentPosition != sourcePosition)
+            {
+                tilesInPath.Add(currentPosition);
+                currentPosition = accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
+            }
+
+            tilesInPath.Reverse();
+            return tilesInPath;
+        }
+        
+        public static MovementRange Generate(Unit unit, Map map)
         {
             var startPosition = map.GetPositionOfUnit(unit);
             if (startPosition == null)
@@ -106,73 +147,6 @@ namespace FireEmblem.MapView
         {
             return !enemyUnitPositions.Contains(mapPosition) &&
                    map.GetTileAt(mapPosition).IsTraversable;
-        }
-    }
-
-    public class AccessibleTile
-    {
-        public AccessibleTile(MapPosition position, TileAccessibility tileAccessibility,
-            IEnumerable<MapPosition> sourceTiles)
-        {
-            Position = position;
-            Accessibility = tileAccessibility;
-            SourceTiles = sourceTiles;
-        }
-
-        public MapPosition Position { get; }
-        public TileAccessibility Accessibility { get; }
-
-        public IEnumerable<MapPosition> SourceTiles { get; }
-    }
-
-    public enum TileAccessibility
-    {
-        Inaccessible,
-        CanMoveTo,
-        CanAttack
-    }
-
-    public class MovementRange
-    {
-        private readonly MapPosition sourcePosition;
-        private readonly Dictionary<MapPosition, AccessibleTile> accessibleTiles;
-
-        public MovementRange(MapPosition sourcePosition, IEnumerable<AccessibleTile> accessibleTiles)
-        {
-            this.sourcePosition = sourcePosition;
-            this.accessibleTiles = accessibleTiles.ToDictionary(x => x.Position, x => x);
-        }
-
-        [CanBeNull]
-        public AccessibleTile GetAccessibleTile(MapPosition mapPosition)
-        {
-            return accessibleTiles.GetValueOrDefault(mapPosition);
-        }
-        
-        public IEnumerable<AccessibleTile> GetAllAccessibleTiles()
-        {
-            return accessibleTiles.Values;
-        }
-
-        public IEnumerable<MapPosition> GetPathTo(MapPosition position)
-        {
-            var currentPosition = position;
-            var targetTile = GetAccessibleTile(position);
-            if (targetTile?.Accessibility == TileAccessibility.CanAttack)
-            {
-                currentPosition = targetTile.SourceTiles.FirstOrDefault();
-            }
-
-            var tilesInPath = new List<MapPosition>();
-
-            while (currentPosition != null && currentPosition != sourcePosition)
-            {
-                tilesInPath.Add(currentPosition);
-                currentPosition = accessibleTiles[currentPosition].SourceTiles.FirstOrDefault();
-            }
-
-            tilesInPath.Reverse();
-            return tilesInPath;
         }
     }
 }

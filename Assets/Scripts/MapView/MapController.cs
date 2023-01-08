@@ -140,7 +140,7 @@ namespace FireEmblem.MapView
             }
             
             movementRangeDisplay.Clear();
-            movementRangeDisplay.ShowMovementRange(MovementGenerator.GetMovementRange(unit, map));
+            movementRangeDisplay.ShowMovementRange(MovementRange.Generate(unit, map));
         }
 
         private void StartPlayerTurn()
