@@ -6,7 +6,7 @@ namespace FireEmblem.CombatView
 {
     public class CombatAnimationInitiator : MonoBehaviour
     {
-        [SerializeField] private CombatAnimator combatAnimator;
+        [SerializeField] private CombatAnimation combatAnimation;
         
         [SerializeField] private CombatParticipantDisplay attackerDisplay;
         [SerializeField] private CombatParticipantDisplay defenderDisplay;
@@ -16,7 +16,7 @@ namespace FireEmblem.CombatView
             attackerDisplay.Display(combatForecast.Attacker);
             defenderDisplay.Display(combatForecast.Defender);
 
-            yield return combatAnimator.AnimateCombatResult(combatResult);
+            yield return combatAnimation.AnimateCombatResult(combatResult);
         }
     }
 }

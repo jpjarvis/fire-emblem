@@ -17,6 +17,8 @@ namespace FireEmblem.CombatView
             _hp = currentHp;
             _maxHp = maxHp;
             hpText.text = currentHp.ToString();
+            UpdateHpText();
+            UpdateHealthBar();
         }
 
         public void TakeDamage(int damage)

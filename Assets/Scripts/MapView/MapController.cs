@@ -68,7 +68,7 @@ namespace FireEmblem.MapView
                             yield return unitObjectManager.MoveUnitObject(unit,
                                 movementRangeDisplay.GetMovePath());
                             map.MoveUnit(unit, tile.SourceTiles.First());
-                            InitiateCombat(unit, targetUnit);
+                            yield return InitiateCombat(unit, targetUnit);
                         }
 
                         break;
@@ -86,10 +86,11 @@ namespace FireEmblem.MapView
             yield return null;
         }
 
-        private void InitiateCombat(Unit attacker, Unit defender)
+        private IEnumerator InitiateCombat(Unit attacker, Unit defender)
         {
             var combatForecast = CombatForecast.Create(attacker, defender, 1);
             var combatResult = Combat.ResolveCombat(combatForecast);
+            yield return CombatAnimationPlayer.Play(combatForecast, combatResult);
             HandleCombatResult(combatResult);
         }
 
@@ -164,7 +165,7 @@ namespace FireEmblem.MapView
                     case MoveAndAttackAction a:
                         yield return unitObjectManager.MoveUnitObject(enemyUnit, a.MovementPath);
                         map.MoveUnit(enemyUnit, a.MovementPath.Last());
-                        InitiateCombat(enemyUnit, a.UnitToAttack);
+                        yield return InitiateCombat(enemyUnit, a.UnitToAttack);
                         break;
                     case NoAction:
                         break;

@@ -10,10 +10,8 @@ namespace FireEmblem.MapView
     {
         private const string CombatSceneName = "Combat";
         
-        public static IEnumerator PerformCombat(CombatForecast combatForecast)
+        public static IEnumerator Play(CombatForecast combatForecast, CombatResult combatResult)
         {
-            var combatResult = Combat.ResolveCombat(combatForecast);
-            
             yield return SceneManager.LoadSceneAsync(CombatSceneName, LoadSceneMode.Additive);
 
             var combatAnimationInitiator = Object.FindObjectOfType<CombatAnimationInitiator>();

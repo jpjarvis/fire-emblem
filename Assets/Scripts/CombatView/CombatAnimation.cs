@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace FireEmblem.CombatView
 {
-    public class CombatAnimator : MonoBehaviour
+    public class CombatAnimation : MonoBehaviour
     {
         [SerializeField] private CombatParticipantAnimation attackerAnimation;
         [SerializeField] private CombatParticipantAnimation defenderAnimation;
@@ -27,7 +27,7 @@ namespace FireEmblem.CombatView
                         attackerHealthDisplay.TakeDamage(attackResult.Damage));
                 }
 
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.5f);
             }
         }
     }
